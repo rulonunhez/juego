@@ -10,7 +10,7 @@ negro = (0, 0, 0)
 class Jugador(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('img/frente1.png').convert()
+        self.image = pygame.transform.scale(pygame.image.load('img/frente1.png').convert(), (45, 45))
         self.image.set_colorkey(negro)
         self.rect = self.image.get_rect()
         self.rect.center = (ancho // 2, alto // 2)
@@ -94,7 +94,7 @@ class Enemigo(pygame.sprite.Sprite):
 class Disparos(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load('img/tears.png').convert(),(10,20))
+        self.image = pygame.transform.scale(pygame.image.load('img/tears.png').convert(),(10,10))
         self.image.set_colorkey(negro)
         self.rect = self.image.get_rect()
         self.rect.bottom = y
@@ -121,12 +121,12 @@ fondo = pygame.image.load('img/fondo.png')
 # Grupos de sprites, interpretación del objeto jugador.
 sprites = pygame.sprite.Group()
 spritesE = pygame.sprite.Group()
+colisiones = pygame.sprite.Group()
 balas = pygame.sprite.Group()
 
 for i in range(random.randrange(3, 7)):
     enemigo = Enemigo()
     spritesE.add(enemigo)
-
 
 jugador = Jugador()
 sprites.add(jugador)
@@ -143,12 +143,22 @@ while ejecutando:
     spritesE.update()
     balas.update()
 
-    colision = pygame.sprite.spritecollide(jugador, spritesE, False)
-    if colision:
-        enemigo.image = pygame.image.load('img/explosion.png')
-        enemigo.velocidad_y += 20
-        if enemigo.rect.bottom >= 485:
+    for enemigo in spritesE.sprites():
+        colisiones.add(enemigo)
+        # Colision entre el personaje y algún enemigo
+        colision = pygame.sprite.spritecollide(jugador, colisiones, False)
+        # Colision entre la bala y algún enemigo
+        colision2 = pygame.sprite.spritecollide(enemigo, balas, False)
+        if colision:
+            # Perder vidas y comprobar si le quedan vidas
+            jugador.image = pygame.image.load('img/explosion.png')
+        else:
+            colisiones.empty()
+        if colision2:
+            # Eliminar al enemigo tocado por la bala
             enemigo.kill()
+
+
 
     sprites.draw(ventana)
     spritesE.draw(ventana)
