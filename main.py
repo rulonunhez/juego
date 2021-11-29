@@ -1,3 +1,5 @@
+from dis import dis
+
 import pygame, sys
 import random
 from pygame.locals import *
@@ -6,6 +8,14 @@ ancho = 1000
 alto = 600
 fps = 30
 negro = (0, 0, 0)
+VELDISPARO = 12
+VELPERSONAJE = 8
+VELENEMIGO = 5
+LEFT = 100
+RIGHT = 890
+TOP = 85
+BOTTOM = 485
+
 
 class Jugador(pygame.sprite.Sprite):
     def __init__(self):
@@ -15,49 +25,77 @@ class Jugador(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (ancho // 2, alto // 2)
 
-        # Velocidad predeterminada a 0 para que no se mueva si no pulsamos ninguna tecla
-        self.velocidad_x = 0
-        self.velocidad_y = 0
+        self.cadencia = 250
+        self.ultimo_disparo = pygame.time.get_ticks()
 
     def update(self):
         ventana.blit(fondo, (0, 0))
-        self.velocidad_x = 0
-        self.velocidad_y = 0
 
         # Mantiene las teclas pulsadas
         teclas = pygame.key.get_pressed()
 
         # Movimiento del personaje
-        if teclas[pygame.K_a]:
-            self.velocidad_x = -10
-        if teclas[pygame.K_d]:
-            self.velocidad_x = 10
-        if teclas[pygame.K_s]:
-            self.velocidad_y = 10
-        if teclas[pygame.K_w]:
-            self.velocidad_y = -10
+        if teclas[pygame.K_w] and teclas[pygame.K_d]:
+            self.rect.y -= VELPERSONAJE / 1.5
+            self.rect.x += VELPERSONAJE / 1.5
+        elif teclas[pygame.K_w] and teclas[pygame.K_a]:
+            self.rect.y -= VELPERSONAJE / 1.5
+            self.rect.x -= VELPERSONAJE / 1.5
+        elif teclas[pygame.K_s] and teclas[pygame.K_d]:
+            self.rect.y += VELPERSONAJE / 1.5
+            self.rect.x += VELPERSONAJE / 1.5
+        elif teclas[pygame.K_s] and teclas[pygame.K_a]:
+            self.rect.y += VELPERSONAJE / 1.5
+            self.rect.x -= VELPERSONAJE / 1.5
+        elif teclas[pygame.K_a]:
+            self.rect.x -= VELPERSONAJE
+        elif teclas[pygame.K_d]:
+            self.rect.x += VELPERSONAJE
+        elif teclas[pygame.K_s]:
+            self.rect.y += VELPERSONAJE
+        elif teclas[pygame.K_w]:
+            self.rect.y -= VELPERSONAJE
 
         # Disparo
         if teclas[pygame.K_SPACE]:
-            jugador.disparo()
+            tiempo = pygame.time.get_ticks()
+            if tiempo - self.ultimo_disparo > self.cadencia:
+                jugador.disparo()
+                self.ultimo_disparo = tiempo
 
-        # Actualiza las posiciones
-        self.rect.x += self.velocidad_x
-        self.rect.y += self.velocidad_y
-
-        #Limite de margenes
-        if self.rect.left < 100:
-            self.rect.left = 100
-        if self.rect.right > 890:
-            self.rect.right = 890
-        if self.rect.top < 85:
-            self.rect.top = 85
-        if self.rect.bottom > 485:
-            self.rect.bottom = 485
+        # Limite de margenes
+        if self.rect.left < LEFT:
+            self.rect.left = LEFT
+        if self.rect.right > RIGHT:
+            self.rect.right = RIGHT
+        if self.rect.top < TOP:
+            self.rect.top = TOP
+        if self.rect.bottom > BOTTOM:
+            self.rect.bottom = BOTTOM
 
     def disparo(self):
-        bala = Disparos(self.rect.centerx, self.rect.centery)
+        teclas = pygame.key.get_pressed()
+        direccion = 0
+        if teclas[pygame.K_w] and teclas[pygame.K_d]:
+            direccion = 5
+        elif teclas[pygame.K_w] and teclas[pygame.K_a]:
+            direccion = 6
+        elif teclas[pygame.K_s] and teclas[pygame.K_d]:
+            direccion = 7
+        elif teclas[pygame.K_s] and teclas[pygame.K_a]:
+            direccion = 8
+        elif teclas[pygame.K_d]:
+            direccion = 2
+        elif teclas[pygame.K_s]:
+            direccion = 3
+        elif teclas[pygame.K_a]:
+            direccion = 1
+        elif teclas[pygame.K_w]:
+            direccion = 4
+
+        bala = Disparos(self.rect.centerx, self.rect.centery, direccion)
         balas.add(bala)
+
 
 class Enemigo(pygame.sprite.Sprite):
     def __init__(self):
@@ -68,42 +106,71 @@ class Enemigo(pygame.sprite.Sprite):
         self.rect.x = random.randrange(ancho - self.rect.width)
         self.rect.y = random.randrange(alto - self.rect.height)
 
-        # Velocidad predeterminada a 0 para que no se mueva si no pulsamos ninguna tecla
-        self.velocidad_x = 5
-        self.velocidad_y = 5
+        self.velocidad_x = VELENEMIGO
+        self.velocidad_y = VELENEMIGO
 
     def update(self):
         self.rect.x += self.velocidad_x
         self.rect.y += self.velocidad_y
 
         # Limite de margenes
-        if self.rect.left <= 100:
-            self.rect.left = 100
-            self.velocidad_x += 5
-        if self.rect.right >= 890:
-            self.rect.right = 890
-            self.velocidad_x -= 5
-        if self.rect.top <= 85:
-            self.rect.top = 85
-            self.velocidad_y += 5
-        if self.rect.bottom >= 485:
-            self.rect.bottom = 485
-            self.velocidad_y -= 5
+        if self.rect.left <= LEFT:
+            self.rect.left = LEFT
+            self.velocidad_x += VELENEMIGO
+        if self.rect.right >= RIGHT:
+            self.rect.right = RIGHT
+            self.velocidad_x -= VELENEMIGO
+        if self.rect.top <= TOP:
+            self.rect.top = TOP
+            self.velocidad_y += VELENEMIGO
+        if self.rect.bottom >= BOTTOM:
+            self.rect.bottom = BOTTOM
+            self.velocidad_y -= VELENEMIGO
 
 
 class Disparos(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    dis = 0
+
+    def __init__(self, x, y, direccion):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load('img/tears.png').convert(),(10,10))
+        self.image = pygame.transform.scale(pygame.image.load('img/tears.png').convert(), (15, 15))
         self.image.set_colorkey(negro)
         self.rect = self.image.get_rect()
         self.rect.bottom = y
         self.rect.centerx = x
+        self.dis = direccion
 
     def update(self):
-        self.rect.y -= 10
-        if self.rect.bottom < 100:
+        if self.dis == 4 or self.dis == 0:
+            self.rect.y -= VELDISPARO
+        elif self.dis == 2:
+            self.rect.x += VELDISPARO
+        elif self.dis == 1:
+            self.rect.x -= VELDISPARO
+        elif self.dis == 3:
+            self.rect.y += VELDISPARO
+        elif self.dis == 5:
+            self.rect.y -= VELDISPARO / 1.5
+            self.rect.x += VELDISPARO / 1.5
+        elif self.dis == 6:
+            self.rect.y -= VELDISPARO / 1.5
+            self.rect.x -= VELDISPARO / 1.5
+        elif self.dis == 7:
+            self.rect.y += VELDISPARO / 1.5
+            self.rect.x += VELDISPARO / 1.5
+        elif self.dis == 8:
+            self.rect.y += VELDISPARO / 1.5
+            self.rect.x -= VELDISPARO / 1.5
+
+        if self.rect.right >= 890:
             self.kill()
+        if self.rect.top <= 85:
+            self.kill()
+        if self.rect.bottom >= 485:
+            self.kill()
+        if self.rect.left <= 100:
+            self.kill()
+
 
 # Inicialización
 pygame.init()
@@ -133,8 +200,10 @@ sprites.add(jugador)
 
 # Bucle de juego
 ejecutando = True
+
 while ejecutando:
     clock.tick(fps)
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             ejecutando = False
@@ -157,8 +226,6 @@ while ejecutando:
         if colision2:
             # Eliminar al enemigo tocado por la bala
             enemigo.kill()
-
-
 
     sprites.draw(ventana)
     spritesE.draw(ventana)
