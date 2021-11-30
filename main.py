@@ -4,10 +4,11 @@ import pygame, sys
 import random
 from pygame.locals import *
 
-ancho = 1000
-alto = 600
-fps = 30
-negro = (0, 0, 0)
+ANCHO = 1000
+ALTO = 600
+FPS = 30
+NEGRO = (0, 0, 0)
+WHITE = (255, 255, 255)
 VELDISPARO = 12
 VELPERSONAJE = 8
 VELENEMIGO = 5
@@ -21,9 +22,9 @@ class Jugador(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.transform.scale(pygame.image.load('img/frente1.png').convert(), (45, 45))
-        self.image.set_colorkey(negro)
+        self.image.set_colorkey(NEGRO)
         self.rect = self.image.get_rect()
-        self.rect.center = (ancho // 2, alto // 2)
+        self.rect.center = (ANCHO // 2, ALTO // 2)
 
         self.cadencia = 250
         self.ultimo_disparo = pygame.time.get_ticks()
@@ -96,15 +97,14 @@ class Jugador(pygame.sprite.Sprite):
         bala = Disparos(self.rect.centerx, self.rect.centery, direccion)
         balas.add(bala)
 
-
 class Enemigo(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('img/frente2.png').convert()
-        self.image.set_colorkey(negro)
+        self.image = pygame.transform.scale(pygame.image.load('img/spider.jpg').convert(), (30, 30))
+        self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
-        self.rect.x = random.randrange(ancho - self.rect.width)
-        self.rect.y = random.randrange(alto - self.rect.height)
+        self.rect.x = random.randrange(ANCHO - self.rect.width)
+        self.rect.y = random.randrange(ALTO - self.rect.height)
 
         self.velocidad_x = VELENEMIGO
         self.velocidad_y = VELENEMIGO
@@ -130,11 +130,10 @@ class Enemigo(pygame.sprite.Sprite):
 
 class Disparos(pygame.sprite.Sprite):
     dis = 0
-
     def __init__(self, x, y, direccion):
         super().__init__()
         self.image = pygame.transform.scale(pygame.image.load('img/tears.png').convert(), (15, 15))
-        self.image.set_colorkey(negro)
+        self.image.set_colorkey(NEGRO)
         self.rect = self.image.get_rect()
         self.rect.bottom = y
         self.rect.centerx = x
@@ -171,10 +170,30 @@ class Disparos(pygame.sprite.Sprite):
         if self.rect.left <= 100:
             self.kill()
 
+    def fin(self):
+        self.image.fill(NEGRO)
+
+
+# class Vida(pygame.sprite.Sprite):
+#     def __init__(self):
+#         super().__init__()
+#         self.image = pygame.transform.scale(pygame.image.load('img/vida.jpg').convert(), (30, 30))
+#         self.image.set_colorkey(WHITE)
+#         self.rect = self.image.get_rect()
+#         self.rect.center = (ANCHO // 2 - 10, ALTO // 2)
+#
+# class Llave(pygame.sprite.Sprite):
+#     def __init__(self):
+#         super().__init__()
+#         self.image = pygame.transform.scale(pygame.image.load().convert(), )
+#         self.image.set_colorkey(NEGRO)
+#         self.rect = self.image.get_rect()
+#         self.rect.center = (ANCHO // 2 + 10, ALTO // 2)
+
 
 # Inicialización
 pygame.init()
-ventana = pygame.display.set_mode((ancho, alto))
+ventana = pygame.display.set_mode((ANCHO, ALTO))
 clock = pygame.time.Clock()
 
 # Título
@@ -190,8 +209,9 @@ sprites = pygame.sprite.Group()
 spritesE = pygame.sprite.Group()
 colisiones = pygame.sprite.Group()
 balas = pygame.sprite.Group()
+vidas = pygame.sprite.Group()
 
-for i in range(random.randrange(3, 7)):
+for i in range(6):
     enemigo = Enemigo()
     spritesE.add(enemigo)
 
@@ -201,8 +221,11 @@ sprites.add(jugador)
 # Bucle de juego
 ejecutando = True
 
+eliminados = 0
+cuentaVidas = 2
+
 while ejecutando:
-    clock.tick(fps)
+    clock.tick(FPS)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -216,20 +239,43 @@ while ejecutando:
         colisiones.add(enemigo)
         # Colision entre el personaje y algún enemigo
         colision = pygame.sprite.spritecollide(jugador, colisiones, False)
-        # Colision entre la bala y algún enemigo
-        colision2 = pygame.sprite.spritecollide(enemigo, balas, False)
+        # Colision entre el enemigo y alguna bala
+        colision2 = pygame.sprite.spritecollide(enemigo, balas, True)
         if colision:
             # Perder vidas y comprobar si le quedan vidas
-            jugador.image = pygame.image.load('img/explosion.png')
+            fondo = pygame.image.load('img/fondoPerder.png')
+            spritesE.empty()
+            balas.empty()
+            jugador.image.fill(NEGRO)
+
         else:
             colisiones.empty()
+
         if colision2:
-            # Eliminar al enemigo tocado por la bala
+            # Eliminar al enemigo cuando colisiona con la bala
             enemigo.kill()
+
+    # if cuentaVidas <= 0:
+    #     fondo = pygame.image.load('img/fondoPerder.png')
+    #     jugador.kill()
+    #     for enemigo in spritesE.sprites():
+    #         enemigo.kill()
+    #     for bala in balas.sprites():
+    #         bala.kill()
+    #
+    # if eliminados == 6:
+    #     vida = Vida()
+    #     vidas.add(vida)
+    #     colisionVidaJugador = pygame.sprite.spritecollide(jugador, vidas, False)
+    #     if colisionVidaJugador:
+    #         vida.kill()
+    #         cuentaVidas += 1
 
     sprites.draw(ventana)
     spritesE.draw(ventana)
     balas.draw(ventana)
+
     pygame.display.flip()
 
+pygame.display.flip()
 pygame.quit()
