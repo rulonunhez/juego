@@ -27,7 +27,9 @@ class Jugador(pygame.sprite.Sprite):
         self.rect.center = (ANCHO // 2, ALTO // 2)
 
         self.cadencia = 250
+        self.delay_colision = 500
         self.ultimo_disparo = pygame.time.get_ticks()
+        self.ultima_colision = pygame.time.get_ticks()
 
     def update(self):
         ventana.blit(fondo, (0, 0))
@@ -170,18 +172,21 @@ class Disparos(pygame.sprite.Sprite):
         if self.rect.left <= 100:
             self.kill()
 
-    def fin(self):
-        self.image.fill(NEGRO)
+class Vida(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.transform.scale(pygame.image.load('img/vida.jpg').convert(), (30, 30))
+        # self.image.set_colorkey(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.center = (ANCHO // 2 - 10, ALTO // 2)
 
+class Perder(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.transform.scale(pygame.image.load('img/fondoPerder.png').convert(), (400, 504))
+        self.rect = self.image.get_rect()
+        self.rect.center = (ANCHO // 2, ALTO // 2)
 
-# class Vida(pygame.sprite.Sprite):
-#     def __init__(self):
-#         super().__init__()
-#         self.image = pygame.transform.scale(pygame.image.load('img/vida.jpg').convert(), (30, 30))
-#         self.image.set_colorkey(WHITE)
-#         self.rect = self.image.get_rect()
-#         self.rect.center = (ANCHO // 2 - 10, ALTO // 2)
-#
 # class Llave(pygame.sprite.Sprite):
 #     def __init__(self):
 #         super().__init__()
@@ -210,6 +215,7 @@ spritesE = pygame.sprite.Group()
 colisiones = pygame.sprite.Group()
 balas = pygame.sprite.Group()
 vidas = pygame.sprite.Group()
+spritesPerder = pygame.sprite.Group()
 
 for i in range(6):
     enemigo = Enemigo()
@@ -235,25 +241,55 @@ while ejecutando:
     spritesE.update()
     balas.update()
 
-    for enemigo in spritesE.sprites():
-        colisiones.add(enemigo)
-        # Colision entre el personaje y algún enemigo
-        colision = pygame.sprite.spritecollide(jugador, colisiones, False)
-        # Colision entre el enemigo y alguna bala
-        colision2 = pygame.sprite.spritecollide(enemigo, balas, True)
-        if colision:
-            # Perder vidas y comprobar si le quedan vidas
-            fondo = pygame.image.load('img/fondoPerder.png')
-            spritesE.empty()
-            balas.empty()
-            jugador.image.fill(NEGRO)
+    colision = pygame.sprite.spritecollide(jugador, spritesE, False)
+    if colision:
+        momento_colision = pygame.time.get_ticks()
+        if momento_colision - jugador.ultima_colision > jugador.delay_colision:
+            cuentaVidas -= 1
+            jugador.ultima_colision = momento_colision
+            if cuentaVidas == 0:
+                mensajePerdida = Perder()
+                spritesPerder.add(mensajePerdida)
+                spritesE.empty()
+                balas.empty()
+                jugador.image.fill(NEGRO)
 
-        else:
-            colisiones.empty()
+    colision2 = pygame.sprite.groupcollide(spritesE, balas, True, True)
+    if colision2:
+        eliminados += 1
 
-        if colision2:
-            # Eliminar al enemigo cuando colisiona con la bala
-            enemigo.kill()
+    if eliminados == 6:
+        vida = Vida()
+        vidas.add(vida)
+        colisionVidaJugador = pygame.sprite.spritecollide(jugador, vidas, False)
+        if colisionVidaJugador:
+            vida.kill()
+            eliminados = 0
+            cuentaVidas += 1
+            vidas.empty()
+
+    print(cuentaVidas)
+
+
+    # for enemigo in spritesE.sprites():
+    #     colisiones.add(enemigo)
+    #     # Colision entre el personaje y algún enemigo
+    #     colision = pygame.sprite.spritecollide(jugador, colisiones, False)
+    #     # Colision entre el enemigo y alguna bala
+    #     colision2 = pygame.sprite.spritecollide(enemigo, balas, True)
+    #     if colision:
+    #         # Perder vidas y comprobar si le quedan vidas
+    #         fondo = pygame.image.load('img/fondoPerder.png')
+    #         spritesE.empty()
+    #         balas.empty()
+    #         jugador.image.fill(NEGRO)
+    #
+    #     else:
+    #         colisiones.empty()
+    #
+    #     if colision2:
+    #         # Eliminar al enemigo cuando colisiona con la bala
+    #         enemigo.kill()
 
     # if cuentaVidas <= 0:
     #     fondo = pygame.image.load('img/fondoPerder.png')
@@ -263,19 +299,20 @@ while ejecutando:
     #     for bala in balas.sprites():
     #         bala.kill()
     #
-    # if eliminados == 6:
-    #     vida = Vida()
-    #     vidas.add(vida)
-    #     colisionVidaJugador = pygame.sprite.spritecollide(jugador, vidas, False)
-    #     if colisionVidaJugador:
-    #         vida.kill()
-    #         cuentaVidas += 1
+    if eliminados == 6:
+        vida = Vida()
+        vidas.add(vida)
+        colisionVidaJugador = pygame.sprite.spritecollide(jugador, vidas, False)
+        if colisionVidaJugador:
+            vidas.empty()
+            cuentaVidas += 1
 
     sprites.draw(ventana)
     spritesE.draw(ventana)
     balas.draw(ventana)
+    vidas.draw(ventana)
+    spritesPerder.draw(ventana)
 
     pygame.display.flip()
 
-pygame.display.flip()
 pygame.quit()
