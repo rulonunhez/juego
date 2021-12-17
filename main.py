@@ -107,29 +107,62 @@ class Enemigo(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(pygame.image.load('img/spider.jpg').convert(), (30, 30))
         self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
-        self.rect.x = random.randrange(ANCHO - self.rect.width)
-        self.rect.y = random.randrange(ALTO - self.rect.height)
+        posx = random.randint(0, 1)
+        posy = random.randint(0, 1)
+        if posx == 0:
+            self.rect.x = random.randrange(150, 200)
+        else:
+            self.rect.x = random.randrange(750, 800)
+        if posy == 0:
+            self.rect.y = random.randrange(100, 150)
+        else:
+            self.rect.y = random.randrange(450, 500)
 
         self.velocidad_x = VELENEMIGO
         self.velocidad_y = VELENEMIGO
 
     def update(self):
+        jugador.rect.x
         self.rect.x += self.velocidad_x
         self.rect.y += self.velocidad_y
 
         # Limite de margenes
         if self.rect.left <= LEFT:
             self.rect.left = LEFT
-            self.velocidad_x += VELENEMIGO
+            self.velocidad_x = VELENEMIGO
+            if self.rect.y > jugador.rect.y:
+                self.velocidad_y = -VELENEMIGO
+            elif self.rect.y == jugador.rect.y:
+                self.velocidad_y = 0
+            elif self.rect.y < jugador.rect.y:
+                self.velocidad_y = VELENEMIGO
         if self.rect.right >= RIGHT:
             self.rect.right = RIGHT
-            self.velocidad_x -= VELENEMIGO
+            self.velocidad_x = -VELENEMIGO
+            if self.rect.y > jugador.rect.y:
+                self.velocidad_y = -VELENEMIGO
+            elif self.rect.y == jugador.rect.y:
+                self.velocidad_y = 0
+            elif self.rect.y < jugador.rect.y:
+                self.velocidad_y = VELENEMIGO
         if self.rect.top <= TOP:
             self.rect.top = TOP
-            self.velocidad_y += VELENEMIGO
+            self.velocidad_y = VELENEMIGO
+            if self.rect.x > jugador.rect.x:
+                self.velocidad_x = -VELENEMIGO
+            elif self.rect.x == jugador.rect.x:
+                self.velocidad_x = 0
+            elif self.rect.x < jugador.rect.x:
+                self.velocidad_x = VELENEMIGO
         if self.rect.bottom >= BOTTOM:
             self.rect.bottom = BOTTOM
-            self.velocidad_y -= VELENEMIGO
+            self.velocidad_y = -VELENEMIGO
+            if self.rect.x > jugador.rect.x:
+                self.velocidad_x = -VELENEMIGO
+            elif self.rect.x == jugador.rect.x:
+                self.velocidad_x = 0
+            elif self.rect.x < jugador.rect.x:
+                self.velocidad_x = VELENEMIGO
 
 
 class Disparos(pygame.sprite.Sprite):
@@ -233,7 +266,7 @@ spritesPerder = pygame.sprite.Group()
 spritesLlaves = pygame.sprite.Group()
 spritesFechas = pygame.sprite.Group()
 
-for i in range(2):
+for i in range(5):
     enemigo = Enemigo()
     spritesE.add(enemigo)
 
@@ -284,7 +317,7 @@ while ejecutando:
     if colision2:
         eliminados += 1
 
-    if eliminados == 2:
+    if eliminados == 5:
         vida = Vida(ANCHO // 2 - 30, ALTO // 2)
         spritesVidas.add(vida)
         llave = Llave()
