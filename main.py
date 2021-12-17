@@ -201,6 +201,14 @@ class Llave(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (ANCHO // 2 + 30, ALTO // 2)
 
+class Flecha(pygame.sprite.Sprite):
+    def __init__(self, x, y, rotacion):
+        super().__init__()
+        self.image = pygame.transform.scale(pygame.image.load('img/flecha.png').convert(), (50, 50))
+        self.image.set_colorkey(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.image = pygame.transform.rotate(self.image, rotacion)
 
 # Inicialización
 pygame.init()
@@ -222,7 +230,8 @@ colisiones = pygame.sprite.Group()
 balas = pygame.sprite.Group()
 spritesVidas = pygame.sprite.Group()
 spritesPerder = pygame.sprite.Group()
-llaves = pygame.sprite.Group()
+spritesLlaves = pygame.sprite.Group()
+spritesFechas = pygame.sprite.Group()
 
 for i in range(2):
     enemigo = Enemigo()
@@ -279,15 +288,23 @@ while ejecutando:
         vida = Vida(ANCHO // 2 - 30, ALTO // 2)
         spritesVidas.add(vida)
         llave = Llave()
-        llaves.add(llave)
+        spritesLlaves.add(llave)
         colisionVidaJugador = pygame.sprite.spritecollide(jugador, spritesVidas, True)
         if colisionVidaJugador:
             cuentaVidas += 1
             vida = Vida(cuentaVidas)
             spritesVidas.add(vida)
             eliminados = 0
-        colisionLlaveJugador = pygame.sprite.spritecollide(jugador, llaves, True)
 
+    colisionLlaveJugador = pygame.sprite.spritecollide(jugador, spritesLlaves, True)
+    if colisionLlaveJugador:
+        spritesLlaves.empty()
+        flecha = Flecha(145, 300, 270)
+        flecha2 = Flecha(845, 295, 90)
+        flecha3 = Flecha(500, 140, 180)
+        spritesLlaves.add(flecha)
+        spritesLlaves.add(flecha2)
+        spritesLlaves.add(flecha3)
 
     # for i in range(vidas):
 
@@ -325,7 +342,8 @@ while ejecutando:
     balas.draw(ventana)
     spritesVidas.draw(ventana)
     spritesPerder.draw(ventana)
-    llaves.draw(ventana)
+    spritesLlaves.draw(ventana)
+    spritesFechas.draw(ventana)
 
     pygame.display.flip()
 
