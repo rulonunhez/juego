@@ -6,27 +6,49 @@ from pygame.locals import *
 
 ANCHO = 1000
 ALTO = 600
-FPS = 30
+FPS = 60
 NEGRO = (0, 0, 0)
 WHITE = (255, 255, 255)
-VELDISPARO = 12
-VELPERSONAJE = 8
-VELENEMIGO = 5
+VELDISPARO = 8
+VELPERSONAJE = 6
+VELENEMIGO = 3
 LEFT = 100
 RIGHT = 890
 TOP = 85
 BOTTOM = 485
 
+movimiento_abajo = ['img/abajo1.png', 'img/abajo1.png', 'img/abajo1.png', 'img/abajo2.png', 'img/abajo2.png', 'img/abajo2.png',
+                    'img/abajo4.png', 'img/abajo4.png', 'img/abajo4.png', 'img/abajo5.png', 'img/abajo5.png', 'img/abajo5.png']
+
+movimiento_arriba = ['img/arriba1.png', 'img/arriba1.png', 'img/arriba1.png', 'img/arriba2.png', 'img/arriba2.png', 'img/arriba2.png',
+                     'img/arriba3.png', 'img/arriba3.png', 'img/arriba3.png', 'img/arriba4.png', 'img/arriba4.png', 'img/arriba4.png']
+
+movimiento_derecha = ['img/derecha1.png', 'img/derecha1.png', 'img/derecha2.png', 'img/derecha2.png', 'img/derecha3.png', 'img/derecha3.png',
+                      'img/derecha4.png', 'img/derecha4.png', 'img/derecha5.png', 'img/derecha5.png', 'img/derecha6.png', 'img/derecha6.png',
+                      'img/derecha7.png', 'img/derecha7.png', 'img/derecha8.png', 'img/derecha8.png', 'img/derecha9.png', 'img/derecha9.png',
+                      'img/derecha10.png', 'img/derecha10.png']
+
+movimiento_izquierda = ['img/izquierda1.png', 'img/izquierda1.png', 'img/izquierda2.png', 'img/izquierda2.png', 'img/izquierda3.png', 'img/izquierda3.png',
+                      'img/izquierda4.png', 'img/izquierda4.png', 'img/izquierda5.png', 'img/izquierda5.png', 'img/izquierda6.png', 'img/izquierda6.png',
+                      'img/izquierda7.png', 'img/izquierda7.png', 'img/izquierda8.png', 'img/izquierda8.png', 'img/izquierda9.png', 'img/izquierda9.png',
+                      'img/izquierda10.png', 'img/izquierda10.png']
+
 
 class Jugador(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load('img/frente1.png').convert(), (45, 45))
+        # self.image = pygame.image.load('img/quieto.png')
+        self.image = pygame.transform.scale(pygame.image.load('img/abajoQuieto.png').convert(), (65, 65))
         self.image.set_colorkey(NEGRO)
         self.rect = self.image.get_rect()
         self.rect.center = (ANCHO // 2, ALTO // 2)
+        self.frameAbajo = 0
+        self.frameArriba = 0
+        self.frameDer = 0
+        self.frameIzq = 0
+        self.ultimaDireccion = 'abajo'
 
-        self.cadencia = 250
+        self.cadencia = 500
         self.delay_colision = 500
         self.ultimo_disparo = pygame.time.get_ticks()
         self.ultima_colision = pygame.time.get_ticks()
@@ -42,23 +64,88 @@ class Jugador(pygame.sprite.Sprite):
         if teclas[pygame.K_w] and teclas[pygame.K_d]:
             self.rect.y -= VELPERSONAJE / 1.5
             self.rect.x += VELPERSONAJE / 1.5
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_arriba[self.frameArriba]).convert(), (45, 45))
+            self.image.set_colorkey(NEGRO)
+            self.frameArriba += 1
+            self.ultimaDireccion = 'arriba'
+            if self.frameArriba == len(movimiento_arriba):
+                self.frameArriba = 0
         elif teclas[pygame.K_w] and teclas[pygame.K_a]:
             self.rect.y -= VELPERSONAJE / 1.5
             self.rect.x -= VELPERSONAJE / 1.5
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_arriba[self.frameArriba]).convert(), (45, 45))
+            self.image.set_colorkey(NEGRO)
+            self.frameArriba += 1
+            self.ultimaDireccion = 'arriba'
+            if self.frameArriba == len(movimiento_arriba):
+                self.frameArriba = 0
         elif teclas[pygame.K_s] and teclas[pygame.K_d]:
             self.rect.y += VELPERSONAJE / 1.5
             self.rect.x += VELPERSONAJE / 1.5
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_abajo[self.frameAbajo]).convert(), (45, 45))
+            self.image.set_colorkey(NEGRO)
+            self.frameAbajo += 1
+            self.ultimaDireccion = 'abajo'
+            if self.frameAbajo == len(movimiento_abajo):
+                self.frameAbajo = 0
         elif teclas[pygame.K_s] and teclas[pygame.K_a]:
             self.rect.y += VELPERSONAJE / 1.5
             self.rect.x -= VELPERSONAJE / 1.5
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_abajo[self.frameAbajo]).convert(), (45, 45))
+            self.image.set_colorkey(NEGRO)
+            self.frameAbajo += 1
+            self.ultimaDireccion = 'abajo'
+            if self.frameAbajo == len(movimiento_abajo):
+                self.frameAbajo = 0
         elif teclas[pygame.K_a]:
             self.rect.x -= VELPERSONAJE
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_izquierda[self.frameIzq]).convert(), (45, 45))
+            self.image.set_colorkey(NEGRO)
+            self.frameIzq += 1
+            self.ultimaDireccion = 'izquierda'
+            if self.frameIzq == len(movimiento_izquierda):
+                self.frameIzq = 0
         elif teclas[pygame.K_d]:
             self.rect.x += VELPERSONAJE
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_derecha[self.frameDer]).convert(), (45, 45))
+            self.image.set_colorkey(NEGRO)
+            self.frameDer += 1
+            self.ultimaDireccion = 'derecha'
+            if self.frameDer == len(movimiento_derecha):
+                self.frameDer = 0
         elif teclas[pygame.K_s]:
             self.rect.y += VELPERSONAJE
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_abajo[self.frameAbajo]).convert(), (45, 45))
+            self.image.set_colorkey(NEGRO)
+            self.frameAbajo += 1
+            self.ultimaDireccion = 'abajo'
+            if self.frameAbajo == len(movimiento_abajo):
+                self.frameAbajo = 0
         elif teclas[pygame.K_w]:
             self.rect.y -= VELPERSONAJE
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_arriba[self.frameArriba]).convert(), (45, 45))
+            self.image.set_colorkey(NEGRO)
+            self.frameArriba += 1
+            self.ultimaDireccion = 'arriba'
+            if self.frameArriba == len(movimiento_arriba):
+                self.frameArriba = 0
+        else:
+            if self.ultimaDireccion == 'abajo':
+                self.image = pygame.transform.scale(pygame.image.load('img/abajoQuieto.png').convert(), (45, 45))
+                self.image.set_colorkey(NEGRO)
+                self.frameAbajo = 0
+            elif self.ultimaDireccion == 'arriba':
+                self.image = pygame.transform.scale(pygame.image.load('img/arribaQuieto.png').convert(), (45, 45))
+                self.image.set_colorkey(NEGRO)
+                self.frameArriba = 0
+            elif self.ultimaDireccion == 'derecha':
+                self.image = pygame.transform.scale(pygame.image.load('img/derecha1.png').convert(), (45, 45))
+                self.image.set_colorkey(NEGRO)
+                self.frameDer = 0
+            elif self.ultimaDireccion == 'izquierda':
+                self.image = pygame.transform.scale(pygame.image.load('img/izquierda1.png').convert(), (45, 45))
+                self.image.set_colorkey(NEGRO)
+                self.frameDer = 0
 
         # Disparo
         if self.disparar:
@@ -104,8 +191,8 @@ class Jugador(pygame.sprite.Sprite):
 class Enemigo(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load('img/spider.jpg').convert(), (30, 30))
-        self.image.set_colorkey(WHITE)
+        self.image = pygame.transform.scale(pygame.image.load('img/spider_abajo.png').convert(), (50, 50))
+        self.image.set_colorkey(NEGRO)
         self.rect = self.image.get_rect()
         posx = random.randint(0, 1)
         posy = random.randint(0, 1)
@@ -169,7 +256,7 @@ class Disparos(pygame.sprite.Sprite):
     dis = 0
     def __init__(self, x, y, direccion):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load('img/tears.png').convert(), (15, 15))
+        self.image = pygame.transform.scale(pygame.image.load('img/tears.png').convert(), (20, 20))
         self.image.set_colorkey(NEGRO)
         self.rect = self.image.get_rect()
         self.rect.bottom = y
@@ -210,8 +297,8 @@ class Disparos(pygame.sprite.Sprite):
 class Vida(pygame.sprite.Sprite):
     def __init__(self, x, y=None):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load('img/vida.jpg').convert(), (40, 40))
-        self.image.set_colorkey(WHITE)
+        self.image = pygame.transform.scale(pygame.image.load('img/vida.png').convert(), (50, 50))
+        self.image.set_colorkey(NEGRO)
         self.rect = self.image.get_rect()
         if y is None:
             contador = x * 50
@@ -329,46 +416,15 @@ while ejecutando:
             spritesVidas.add(vida)
             eliminados = 0
 
-    colisionLlaveJugador = pygame.sprite.spritecollide(jugador, spritesLlaves, True)
-    if colisionLlaveJugador:
-        spritesLlaves.empty()
-        flecha = Flecha(145, 300, 270)
-        flecha2 = Flecha(845, 295, 90)
-        flecha3 = Flecha(500, 140, 180)
-        spritesLlaves.add(flecha)
-        spritesLlaves.add(flecha2)
-        spritesLlaves.add(flecha3)
-
-    # for i in range(vidas):
-
-    # for enemigo in spritesE.sprites():
-    #     colisiones.add(enemigo)
-    #     # Colision entre el personaje y algún enemigo
-    #     colision = pygame.sprite.spritecollide(jugador, colisiones, False)
-    #     # Colision entre el enemigo y alguna bala
-    #     colision2 = pygame.sprite.spritecollide(enemigo, balas, True)
-    #     if colision:
-    #         # Perder vidas y comprobar si le quedan vidas
-    #         fondo = pygame.image.load('img/fondoPerder.png')
-    #         spritesE.empty()
-    #         balas.empty()
-    #         jugador.image.fill(NEGRO)
-    #
-    #     else:
-    #         colisiones.empty()
-    #
-    #     if colision2:
-    #         # Eliminar al enemigo cuando colisiona con la bala
-    #         enemigo.kill()
-
-    # if cuentaVidas <= 0:
-    #     fondo = pygame.image.load('img/fondoPerder.png')
-    #     jugador.kill()
-    #     for enemigo in spritesE.sprites():
-    #         enemigo.kill()
-    #     for bala in balas.sprites():
-    #         bala.kill()
-    #
+        colisionLlaveJugador = pygame.sprite.spritecollide(jugador, spritesLlaves, True)
+        if colisionLlaveJugador:
+            spritesLlaves.empty()
+            flecha = Flecha(145, 300, 270)
+            flecha2 = Flecha(845, 295, 90)
+            flecha3 = Flecha(500, 140, 180)
+            spritesLlaves.add(flecha)
+            spritesLlaves.add(flecha2)
+            spritesLlaves.add(flecha3)
 
     sprites.draw(ventana)
     spritesE.draw(ventana)
