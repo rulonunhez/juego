@@ -33,6 +33,8 @@ movimiento_izquierda = ['img/izquierda1.png', 'img/izquierda1.png', 'img/izquier
                       'img/izquierda7.png', 'img/izquierda7.png', 'img/izquierda8.png', 'img/izquierda8.png', 'img/izquierda9.png', 'img/izquierda9.png',
                       'img/izquierda10.png', 'img/izquierda10.png']
 
+movimiento_spider = ['img/spider_abajo.png', 'img/spider.jpg']
+
 
 class Jugador(pygame.sprite.Sprite):
     def __init__(self):
@@ -189,29 +191,39 @@ class Jugador(pygame.sprite.Sprite):
         balas.add(bala)
 
 class Enemigo(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, x, y):
         super().__init__()
         self.image = pygame.transform.scale(pygame.image.load('img/spider_abajo.png').convert(), (50, 50))
         self.image.set_colorkey(NEGRO)
         self.rect = self.image.get_rect()
-        posx = random.randint(0, 1)
-        posy = random.randint(0, 1)
-        if posx == 0:
-            self.rect.x = random.randrange(150, 200)
-        else:
-            self.rect.x = random.randrange(750, 800)
-        if posy == 0:
-            self.rect.y = random.randrange(100, 150)
-        else:
-            self.rect.y = random.randrange(450, 500)
+        self.rect.center = (x, y)
+        self.frame = 1
+        # posx = random.randint(0, 1)
+        # posy = random.randint(0, 1)
+        # if posx == 0:
+        #     self.rect.x = random.randrange(150, 200)
+        # else:
+        #     self.rect.x = random.randrange(750, 800)
+        # if posy == 0:
+        #     self.rect.y = random.randrange(100, 150)
+        # else:
+        #     self.rect.y = random.randrange(450, 500)
 
         self.velocidad_x = VELENEMIGO
         self.velocidad_y = VELENEMIGO
+
+        self.diferenciaArriba = self.rect.y - 20
+        self.diferenciaAbajo = self.rect.y + 20
 
     def update(self):
         jugador.rect.x
         self.rect.x += self.velocidad_x
         self.rect.y += self.velocidad_y
+        if self.rect.y == self.diferenciaArriba or self.rect.y == self.diferenciaAbajo:
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_spider[1]).convert(), (50, 50))
+            self.image.set_colorkey(NEGRO)
+            self.diferenciaArriba = self.rect.y - 20
+            self.diferenciaAbajo = self.rect.y + 20
 
         # Limite de margenes
         if self.rect.left <= LEFT:
@@ -223,6 +235,7 @@ class Enemigo(pygame.sprite.Sprite):
                 self.velocidad_y = 0
             elif self.rect.y < jugador.rect.y:
                 self.velocidad_y = VELENEMIGO
+
         if self.rect.right >= RIGHT:
             self.rect.right = RIGHT
             self.velocidad_x = -VELENEMIGO
@@ -232,6 +245,7 @@ class Enemigo(pygame.sprite.Sprite):
                 self.velocidad_y = 0
             elif self.rect.y < jugador.rect.y:
                 self.velocidad_y = VELENEMIGO
+
         if self.rect.top <= TOP:
             self.rect.top = TOP
             self.velocidad_y = VELENEMIGO
@@ -241,6 +255,7 @@ class Enemigo(pygame.sprite.Sprite):
                 self.velocidad_x = 0
             elif self.rect.x < jugador.rect.x:
                 self.velocidad_x = VELENEMIGO
+
         if self.rect.bottom >= BOTTOM:
             self.rect.bottom = BOTTOM
             self.velocidad_y = -VELENEMIGO
@@ -353,8 +368,25 @@ spritesPerder = pygame.sprite.Group()
 spritesLlaves = pygame.sprite.Group()
 spritesFechas = pygame.sprite.Group()
 
-for i in range(5):
-    enemigo = Enemigo()
+xE = 150
+yE = 150
+
+for i in range(8):
+    if i == 1:
+        xE = 250
+    elif i == 2:
+        xE = 800
+    elif i == 3:
+        xE = 700
+    elif i == 4:
+        yE = 500
+    elif i == 5:
+        xE = 800
+    elif i == 6:
+        xE = 250
+    elif i == 7:
+        xE = 150
+    enemigo = Enemigo(xE, yE)
     spritesE.add(enemigo)
 
 jugador = Jugador()
@@ -409,22 +441,25 @@ while ejecutando:
         spritesVidas.add(vida)
         llave = Llave()
         spritesLlaves.add(llave)
-        colisionVidaJugador = pygame.sprite.spritecollide(jugador, spritesVidas, True)
-        if colisionVidaJugador:
-            cuentaVidas += 1
-            vida = Vida(cuentaVidas)
-            spritesVidas.add(vida)
-            eliminados = 0
 
-        colisionLlaveJugador = pygame.sprite.spritecollide(jugador, spritesLlaves, True)
-        if colisionLlaveJugador:
-            spritesLlaves.empty()
-            flecha = Flecha(145, 300, 270)
-            flecha2 = Flecha(845, 295, 90)
-            flecha3 = Flecha(500, 140, 180)
-            spritesLlaves.add(flecha)
-            spritesLlaves.add(flecha2)
-            spritesLlaves.add(flecha3)
+    colisionVidaJugador = pygame.sprite.spritecollide(jugador, spritesVidas, True)
+    if colisionVidaJugador:
+        cuentaVidas += 1
+        vida = Vida(cuentaVidas)
+        spritesVidas.add(vida)
+        eliminados = 0
+
+    colisionLlaveJugador = pygame.sprite.spritecollide(jugador, spritesLlaves, True)
+    if colisionLlaveJugador:
+        spritesLlaves.empty()
+        flecha = Flecha(145, 300, 270)
+        flecha2 = Flecha(845, 295, 90)
+        flecha3 = Flecha(500, 140, 180)
+        spritesLlaves.add(flecha)
+        spritesLlaves.add(flecha2)
+        spritesLlaves.add(flecha3)
+        eliminados = 0
+        # Cambiar fondo para abrir la puerta -> Al tocar la puerta cambio de pantalla
 
     sprites.draw(ventana)
     spritesE.draw(ventana)
