@@ -212,18 +212,23 @@ class Enemigo(pygame.sprite.Sprite):
         self.velocidad_x = VELENEMIGO
         self.velocidad_y = VELENEMIGO
 
-        self.diferenciaArriba = self.rect.y - 20
-        self.diferenciaAbajo = self.rect.y + 20
+        self.diferenciaArriba = self.rect.y - 5
+        self.diferenciaAbajo = self.rect.y + 5
 
     def update(self):
         jugador.rect.x
         self.rect.x += self.velocidad_x
         self.rect.y += self.velocidad_y
         if self.rect.y == self.diferenciaArriba or self.rect.y == self.diferenciaAbajo:
-            self.image = pygame.transform.scale(pygame.image.load(movimiento_spider[1]).convert(), (50, 50))
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_spider[self.frame]).convert(), (50, 50))
             self.image.set_colorkey(NEGRO)
-            self.diferenciaArriba = self.rect.y - 20
-            self.diferenciaAbajo = self.rect.y + 20
+            self.diferenciaArriba = self.rect.y - 5
+            self.diferenciaAbajo = self.rect.y + 5
+            if self.frame == 0:
+                self.frame = 1
+            else:
+                self.frame = 0
+            print ('sexy')
 
         # Limite de margenes
         if self.rect.left <= LEFT:
