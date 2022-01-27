@@ -348,6 +348,14 @@ class Flecha(pygame.sprite.Sprite):
         self.rect.center = (x, y)
         self.image = pygame.transform.rotate(self.image, rotacion)
 
+class Peep(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.transform.scale(pygame.image.load('img/peep2.png').convert(), (100, 100))
+        self.image.set_colorkey(NEGRO)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+
 # Inicialización
 pygame.init()
 ventana = pygame.display.set_mode((ANCHO, ALTO))
@@ -369,7 +377,8 @@ balas = pygame.sprite.Group()
 spritesVidas = pygame.sprite.Group()
 spritesPerder = pygame.sprite.Group()
 spritesLlaves = pygame.sprite.Group()
-spritesFechas = pygame.sprite.Group()
+spritesFlechas = pygame.sprite.Group()
+spritesPeeps = pygame.sprite.Group()
 
 xE = 150
 yE = 150
@@ -377,7 +386,8 @@ yE = 150
 fase = 2
 
 if fase == 2:
-    for i in range(8):
+    # Cambiar a 8 antes de seguir con las pruebas
+    for i in range(2):
         if i == 1:
             xE = 250
         elif i == 2:
@@ -442,7 +452,8 @@ while ejecutando:
     if colision2:
         eliminados += 1
 
-    if eliminados == 8:
+    # Cambiar a 8
+    if eliminados == 2:
         vida = Vida(ANCHO // 2 - 30, ALTO // 2)
         spritesVidas.add(vida)
         llave = Llave()
@@ -461,11 +472,26 @@ while ejecutando:
         flecha = Flecha(145, 300, 270)
         flecha2 = Flecha(845, 295, 90)
         flecha3 = Flecha(500, 140, 180)
-        spritesLlaves.add(flecha)
-        spritesLlaves.add(flecha2)
-        spritesLlaves.add(flecha3)
+        spritesFlechas.add(flecha)
+        spritesFlechas.add(flecha2)
+        spritesFlechas.add(flecha3)
         eliminados = 0
-        # Cambiar fondo para abrir la puerta -> Al tocar la puerta cambio de pantalla
+
+    # Cambiar fondo para abrir la puerta -> Al tocar la puerta cambio de pantalla
+    colisionFlechaJugador = pygame.sprite.spritecollide(jugador, spritesFlechas, False)
+    if colisionFlechaJugador:
+        spritesFlechas.empty()
+        fase = 3
+
+    if fase == 3:
+        peep1 = Peep(200, 140)
+        peep2 = Peep(1000, 140)
+        peep3 = Peep(200, 525)
+        peep4 = Peep(1000, 525)
+        spritesPeeps.add(peep1)
+        spritesPeeps.add(peep2)
+        spritesPeeps.add(peep3)
+        spritesPeeps.add(peep4)
 
     sprites.draw(ventana)
     spritesE.draw(ventana)
@@ -473,7 +499,8 @@ while ejecutando:
     spritesVidas.draw(ventana)
     spritesPerder.draw(ventana)
     spritesLlaves.draw(ventana)
-    spritesFechas.draw(ventana)
+    spritesFlechas.draw(ventana)
+    spritesPeeps.draw(ventana)
 
     pygame.display.flip()
 
