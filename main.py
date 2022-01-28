@@ -356,6 +356,51 @@ class Peep(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
 
+    def disparo(self, posJugadorX, posJugadorY):
+        bala = DisparoPeep(self.rect.centerx, self.rect.centery, posJugadorX, posJugadorY)
+        spritesDisparosPeep.add(bala)
+
+    def update(self):
+        momento_disparo_peep = pygame.time.get_ticks()
+        delay_disparo_peep = 100
+        if momento_disparo_peep % delay_disparo_peep == 0:
+            peep1.disparo(jugador.rect.centerx, jugador.rect.centery)
+            peep2.disparo(jugador.rect.x, jugador.rect.y)
+            peep3.disparo(jugador.rect.x, jugador.rect.y)
+            peep4.disparo(jugador.rect.x, jugador.rect.y)
+
+
+class DisparoPeep(pygame.sprite.Sprite):
+    def __init__(self, x, y, posJugadorX, posJugadorY):
+        super().__init__()
+        self.image = pygame.transform.scale(pygame.image.load('img/tears.png').convert(), (20, 20))
+        self.image.set_colorkey(NEGRO)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x + 10, y + 5)
+        self.x = x
+        self.y = y
+        self.posJugadorX = posJugadorX
+        self.posJugadorY = posJugadorY
+
+    def update(self):
+        if self.x <= self.posJugadorX:
+            velocidadX = 4
+        else:
+            velocidadX = -4
+
+        direccion = self.y / self.posJugadorY
+
+        if direccion == 1:
+            velocidadY = 0
+        elif direccion < 1:
+            velocidadY = direccion ** -1
+        else:
+            velocidadY = -direccion
+
+        self.rect.x += velocidadX
+        self.rect.y += velocidadY
+
+
 # Inicialización
 pygame.init()
 ventana = pygame.display.set_mode((ANCHO, ALTO))
@@ -379,31 +424,14 @@ spritesPerder = pygame.sprite.Group()
 spritesLlaves = pygame.sprite.Group()
 spritesFlechas = pygame.sprite.Group()
 spritesPeeps = pygame.sprite.Group()
+spritesDisparosPeep = pygame.sprite.Group()
 
 xE = 150
 yE = 150
 
 fase = 2
-
-if fase == 2:
-    # Cambiar a 8 antes de seguir con las pruebas
-    for i in range(2):
-        if i == 1:
-            xE = 250
-        elif i == 2:
-            xE = 800
-        elif i == 3:
-            xE = 700
-        elif i == 4:
-            yE = 500
-        elif i == 5:
-            xE = 800
-        elif i == 6:
-            xE = 250
-        elif i == 7:
-            xE = 150
-        enemigo = Enemigo(xE, yE)
-        spritesE.add(enemigo)
+arañasCreadas = False
+peepsCreados = False
 
 jugador = Jugador()
 sprites.add(jugador)
@@ -417,6 +445,28 @@ i = 1
 
 while ejecutando:
     clock.tick(FPS)
+
+    if fase == 2 and arañasCreadas == False:
+        # Cambiar a 8 antes de seguir con las pruebas
+        araña1 = Enemigo(150, 150)
+        araña2 = Enemigo(250, 150)
+        # araña3 = Enemigo(700, 150)
+        # araña4 = Enemigo(800, 150)
+        # araña5 = Enemigo(800, 500)
+        # araña6 = Enemigo(700, 500)
+        # araña7 = Enemigo(250, 500)
+        # araña8 = Enemigo(150, 500)
+        # spritesE.add(araña1, araña2, araña3, araña4, araña5, araña6, araña7, araña8)
+        spritesE.add(araña1, araña2)
+        arañasCreadas = True
+
+    elif fase == 3 and peepsCreados == False:
+        peep1 = Peep(200, 140)
+        peep2 = Peep(1000, 140)
+        peep3 = Peep(200, 525)
+        peep4 = Peep(1000, 525)
+        spritesPeeps.add(peep1, peep2, peep3, peep4)
+        peepsCreados = True
 
     while i <= 2:
         x = i*50
@@ -483,15 +533,8 @@ while ejecutando:
         spritesFlechas.empty()
         fase = 3
 
-    if fase == 3:
-        peep1 = Peep(200, 140)
-        peep2 = Peep(1000, 140)
-        peep3 = Peep(200, 525)
-        peep4 = Peep(1000, 525)
-        spritesPeeps.add(peep1)
-        spritesPeeps.add(peep2)
-        spritesPeeps.add(peep3)
-        spritesPeeps.add(peep4)
+    spritesPeeps.update()
+    spritesDisparosPeep.update()
 
     sprites.draw(ventana)
     spritesE.draw(ventana)
@@ -501,6 +544,7 @@ while ejecutando:
     spritesLlaves.draw(ventana)
     spritesFlechas.draw(ventana)
     spritesPeeps.draw(ventana)
+    spritesDisparosPeep.draw(ventana)
 
     pygame.display.flip()
 
