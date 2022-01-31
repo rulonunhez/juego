@@ -373,7 +373,7 @@ class Peep(pygame.sprite.Sprite):
 class DisparoPeep(pygame.sprite.Sprite):
     def __init__(self, x, y, posJugadorX, posJugadorY):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load('img/tears.png').convert(), (20, 20))
+        self.image = pygame.transform.scale(pygame.image.load('img/tears.png').convert(), (25, 25))
         self.image.set_colorkey(NEGRO)
         self.rect = self.image.get_rect()
         self.rect.center = (x + 10, y + 5)
@@ -388,14 +388,40 @@ class DisparoPeep(pygame.sprite.Sprite):
         else:
             velocidadX = -4
 
-        direccion = self.y / self.posJugadorY
+        # direccion = self.y / self.posJugadorY
+        # direccionY = self.y / self.posJugadorY
+        # direccionX = self.x / self.posJugadorX
+        # deberia tener en cuenta tb la posicion de x [  *   --      ]
 
-        if direccion == 1:
+        # Hacer el cálculo con la posicion de cada enemigo y la posición del personaje
+        # -> dividir siempre entre el número que quiero que sea la velocidad del disparo
+        velocidadX = -((self.x - self.posJugadorX) / 60)
+        velocidadY = -((self.y - self.posJugadorY) / 60)
+
+        # if direccionY < 1:
+        #     velocidadY = direccionY ** -1
+        # else:
+        #     velocidadY = -direccionY
+        #
+        # if direccionX < 1:
+        #     velocidadX = direccionX ** -1
+        # else:
+        #     velocidadX = -direccionX
+
+        if self.posJugadorX <= 200 and self.x == 160:
+            velocidadX = 0
+        elif self.posJugadorX >= 1000 and self.x == 1025:
+            velocidadX = 0
+
+        if self.posJugadorY >= 480 and self.y == 525:
             velocidadY = 0
-        elif direccion < 1:
-            velocidadY = direccion ** -1
-        else:
-            velocidadY = -direccion
+        elif self.posJugadorY <= 140 and self.y == 140:
+            velocidadY = 0
+
+            # peep1 = Peep(200, 140)
+            # peep2 = Peep(1025, 140)
+            # peep3 = Peep(200, 525)
+            # peep4 = Peep(1025, 525)
 
         self.rect.x += velocidadX
         self.rect.y += velocidadY
@@ -461,10 +487,10 @@ while ejecutando:
         arañasCreadas = True
 
     elif fase == 3 and peepsCreados == False:
-        peep1 = Peep(200, 140)
-        peep2 = Peep(1000, 140)
-        peep3 = Peep(200, 525)
-        peep4 = Peep(1000, 525)
+        peep1 = Peep(160, 140)
+        peep2 = Peep(1025, 140)
+        peep3 = Peep(160, 525)
+        peep4 = Peep(1025, 525)
         spritesPeeps.add(peep1, peep2, peep3, peep4)
         peepsCreados = True
 
