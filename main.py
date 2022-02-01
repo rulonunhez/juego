@@ -363,10 +363,6 @@ class Peep(pygame.sprite.Sprite):
 
     def update(self):
         self.frame += 1
-        print(self.frame)
-        # momento_disparo_peep = pygame.time.get_ticks()
-        # print(momento_disparo_peep)
-        # delay_disparo_peep = 100
         if self.frame == 125:
             peep1.disparo(jugador.rect.centerx, jugador.rect.centery)
             peep2.disparo(jugador.rect.centerx, jugador.rect.centery)
@@ -387,20 +383,10 @@ class DisparoPeep(pygame.sprite.Sprite):
         self.posJugadorY = posJugadorY
 
     def update(self):
-        # if self.x <= self.posJugadorX:
-        #     velocidadX = 4
-        # else:
-        #     velocidadX = -4
+        # Podemos mejorar las velocidades para que no sean dependientes de la cercanía
 
         direccion = -((self.y - self.posJugadorY) / 60)
         direccion2 = -((self.x - self.posJugadorX) / 60)
-
-        # if direccion == 1:
-        #     velocidadY = 0
-        # elif direccion < 1:
-        #     velocidadY = direccion ** -1
-        # else:
-        #     velocidadY = -direccion
 
         self.rect.x += direccion2
         self.rect.y += direccion
@@ -497,6 +483,7 @@ while ejecutando:
             if cuentaVidas == 0:
                 spritesVidas.empty()
                 jugador.disparar = False
+                # jugador.update = False
                 mensajePerdida = Perder()
                 spritesPerder.add(mensajePerdida)
                 spritesE.empty()
