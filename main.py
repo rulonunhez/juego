@@ -355,50 +355,55 @@ class Peep(pygame.sprite.Sprite):
         self.image.set_colorkey(NEGRO)
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+        self.frame = 0
 
     def disparo(self, posJugadorX, posJugadorY):
         bala = DisparoPeep(self.rect.centerx, self.rect.centery, posJugadorX, posJugadorY)
         spritesDisparosPeep.add(bala)
 
     def update(self):
-        momento_disparo_peep = pygame.time.get_ticks()
-        delay_disparo_peep = 100
-        if momento_disparo_peep % delay_disparo_peep == 0:
+        self.frame += 1
+        print(self.frame)
+        # momento_disparo_peep = pygame.time.get_ticks()
+        # print(momento_disparo_peep)
+        # delay_disparo_peep = 100
+        if self.frame == 125:
             peep1.disparo(jugador.rect.centerx, jugador.rect.centery)
-            peep2.disparo(jugador.rect.x, jugador.rect.y)
-            peep3.disparo(jugador.rect.x, jugador.rect.y)
-            peep4.disparo(jugador.rect.x, jugador.rect.y)
-
+            peep2.disparo(jugador.rect.centerx, jugador.rect.centery)
+            peep3.disparo(jugador.rect.centerx, jugador.rect.centery)
+            peep4.disparo(jugador.rect.centerx, jugador.rect.centery)
+            self.frame = 0
 
 class DisparoPeep(pygame.sprite.Sprite):
     def __init__(self, x, y, posJugadorX, posJugadorY):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load('img/tears.png').convert(), (20, 20))
+        self.image = pygame.transform.scale(pygame.image.load('img/bloodTears.png').convert(), (30, 30))
         self.image.set_colorkey(NEGRO)
         self.rect = self.image.get_rect()
-        self.rect.center = (x + 10, y + 5)
+        self.rect.center = (x, y)
         self.x = x
         self.y = y
         self.posJugadorX = posJugadorX
         self.posJugadorY = posJugadorY
 
     def update(self):
-        if self.x <= self.posJugadorX:
-            velocidadX = 4
-        else:
-            velocidadX = -4
+        # if self.x <= self.posJugadorX:
+        #     velocidadX = 4
+        # else:
+        #     velocidadX = -4
 
-        direccion = self.y / self.posJugadorY
+        direccion = -((self.y - self.posJugadorY) / 60)
+        direccion2 = -((self.x - self.posJugadorX) / 60)
 
-        if direccion == 1:
-            velocidadY = 0
-        elif direccion < 1:
-            velocidadY = direccion ** -1
-        else:
-            velocidadY = -direccion
+        # if direccion == 1:
+        #     velocidadY = 0
+        # elif direccion < 1:
+        #     velocidadY = direccion ** -1
+        # else:
+        #     velocidadY = -direccion
 
-        self.rect.x += velocidadX
-        self.rect.y += velocidadY
+        self.rect.x += direccion2
+        self.rect.y += direccion
 
 
 # Inicialización
