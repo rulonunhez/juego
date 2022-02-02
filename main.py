@@ -355,76 +355,51 @@ class Peep(pygame.sprite.Sprite):
         self.image.set_colorkey(NEGRO)
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+        self.frame = 0
 
     def disparo(self, posJugadorX, posJugadorY):
         bala = DisparoPeep(self.rect.centerx, self.rect.centery, posJugadorX, posJugadorY)
         spritesDisparosPeep.add(bala)
 
     def update(self):
-        momento_disparo_peep = pygame.time.get_ticks()
-        delay_disparo_peep = 100
-        if momento_disparo_peep % delay_disparo_peep == 0:
+        self.frame += 1
+        if self.frame == 125:
             peep1.disparo(jugador.rect.centerx, jugador.rect.centery)
-            peep2.disparo(jugador.rect.x, jugador.rect.y)
-            peep3.disparo(jugador.rect.x, jugador.rect.y)
-            peep4.disparo(jugador.rect.x, jugador.rect.y)
-
+            peep2.disparo(jugador.rect.centerx, jugador.rect.centery)
+            peep3.disparo(jugador.rect.centerx, jugador.rect.centery)
+            peep4.disparo(jugador.rect.centerx, jugador.rect.centery)
+            self.frame = 0
 
 class DisparoPeep(pygame.sprite.Sprite):
     def __init__(self, x, y, posJugadorX, posJugadorY):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load('img/tears.png').convert(), (25, 25))
+        self.image = pygame.transform.scale(pygame.image.load('img/bloodTears.png').convert(), (30, 30))
         self.image.set_colorkey(NEGRO)
         self.rect = self.image.get_rect()
-        self.rect.center = (x + 10, y + 5)
+        self.rect.center = (x, y)
         self.x = x
         self.y = y
         self.posJugadorX = posJugadorX
         self.posJugadorY = posJugadorY
 
     def update(self):
-        if self.x <= self.posJugadorX:
-            velocidadX = 4
-        else:
-            velocidadX = -4
+        # Podemos mejorar las velocidades para que no sean dependientes de la cercanía
 
-        # direccion = self.y / self.posJugadorY
-        # direccionY = self.y / self.posJugadorY
-        # direccionX = self.x / self.posJugadorX
-        # deberia tener en cuenta tb la posicion de x [  *   --      ]
-
-        # Hacer el cálculo con la posicion de cada enemigo y la posición del personaje
-        # -> dividir siempre entre el número que quiero que sea la velocidad del disparo
-        velocidadX = -((self.x - self.posJugadorX) / 60)
-        velocidadY = -((self.y - self.posJugadorY) / 60)
-
-        # if direccionY < 1:
-        #     velocidadY = direccionY ** -1
-        # else:
-        #     velocidadY = -direccionY
-        #
-        # if direccionX < 1:
-        #     velocidadX = direccionX ** -1
-        # else:
-        #     velocidadX = -direccionX
+        direccion = -((self.y - self.posJugadorY) / 60)
+        direccion2 = -((self.x - self.posJugadorX) / 60)
 
         if self.posJugadorX <= 200 and self.x == 160:
-            velocidadX = 0
+            direccion2 = 0
         elif self.posJugadorX >= 1000 and self.x == 1025:
-            velocidadX = 0
+            direccion2 = 0
 
         if self.posJugadorY >= 480 and self.y == 525:
-            velocidadY = 0
+            direccion = 0
         elif self.posJugadorY <= 140 and self.y == 140:
-            velocidadY = 0
+            direccion = 0
 
-            # peep1 = Peep(200, 140)
-            # peep2 = Peep(1025, 140)
-            # peep3 = Peep(200, 525)
-            # peep4 = Peep(1025, 525)
-
-        self.rect.x += velocidadX
-        self.rect.y += velocidadY
+        self.rect.x += direccion2
+        self.rect.y += direccion
 
 
 # Inicialización
@@ -518,6 +493,7 @@ while ejecutando:
             if cuentaVidas == 0:
                 spritesVidas.empty()
                 jugador.disparar = False
+                # jugador.update = False
                 mensajePerdida = Perder()
                 spritesPerder.add(mensajePerdida)
                 spritesE.empty()
