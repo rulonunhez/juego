@@ -364,10 +364,10 @@ class Peep(pygame.sprite.Sprite):
     def update(self):
         self.frame += 1
         if self.frame == 125:
-            peep1.disparo(jugador.rect.centerx, jugador.rect.centery)
-            peep2.disparo(jugador.rect.centerx, jugador.rect.centery)
-            peep3.disparo(jugador.rect.centerx, jugador.rect.centery)
-            peep4.disparo(jugador.rect.centerx, jugador.rect.centery)
+            self.disparo(jugador.rect.centerx, jugador.rect.centery)
+            # peep2.disparo(jugador.rect.centerx, jugador.rect.centery)
+            # peep3.disparo(jugador.rect.centerx, jugador.rect.centery)
+            # peep4.disparo(jugador.rect.centerx, jugador.rect.centery)
             self.frame = 0
 
 class DisparoPeep(pygame.sprite.Sprite):
@@ -383,23 +383,39 @@ class DisparoPeep(pygame.sprite.Sprite):
         self.posJugadorY = posJugadorY
 
     def update(self):
-        # Podemos mejorar las velocidades para que no sean dependientes de la cercanía
-
         direccion = -((self.y - self.posJugadorY) / 60)
         direccion2 = -((self.x - self.posJugadorX) / 60)
 
-        if self.posJugadorX <= 200 and self.x == 160:
-            direccion2 = 0
-        elif self.posJugadorX >= 1000 and self.x == 1025:
-            direccion2 = 0
-
-        if self.posJugadorY >= 480 and self.y == 525:
-            direccion = 0
-        elif self.posJugadorY <= 140 and self.y == 140:
-            direccion = 0
+        if 1.5 > direccion > -1.5 and 1.5 > direccion2 > -1.5:
+            if self.x == 200 and self.y == 140:
+                direccion += 3
+                direccion2 += 3
+            if self.x == 200 and self.y == 525:
+                direccion -= 3
+                direccion2 += 3
+            if self.x == 1000 and self.y == 140:
+                direccion += 3
+                direccion2 -= 3
+            if self.x == 1000 and self.y == 525:
+                direccion -= 3
+                direccion2 -= 3
 
         self.rect.x += direccion2
         self.rect.y += direccion
+
+        if self.rect.right >= RIGHT:
+            self.kill()
+        if self.rect.top <= TOP:
+            self.kill()
+        if self.rect.bottom >= BOTTOM:
+            self.kill()
+        if self.rect.left <= LEFT:
+            self.kill()
+
+    # peep1 = Peep(200, 140)
+    # peep2 = Peep(1000, 140)
+    # peep3 = Peep(200, 525)
+    # peep4 = Peep(1000, 525)
 
 
 # Inicialización
@@ -444,6 +460,18 @@ eliminados = 0
 cuentaVidas = 2
 i = 1
 
+vidaPeep1 = 5
+vidaPeep2 = 5
+vidaPeep3 = 5
+vidaPeep4 = 5
+peepsEliminados = 0
+
+peep1 = None
+
+vida1 = Vida(1)
+vida2 = Vida(2)
+spritesVidas.add(vida1, vida2)
+
 while ejecutando:
     clock.tick(FPS)
 
@@ -462,18 +490,12 @@ while ejecutando:
         arañasCreadas = True
 
     elif fase == 3 and peepsCreados == False:
-        peep1 = Peep(160, 140)
-        peep2 = Peep(1025, 140)
-        peep3 = Peep(160, 525)
-        peep4 = Peep(1025, 525)
+        peep1 = Peep(200, 140)
+        peep2 = Peep(1000, 140)
+        peep3 = Peep(200, 525)
+        peep4 = Peep(1000, 525)
         spritesPeeps.add(peep1, peep2, peep3, peep4)
         peepsCreados = True
-
-    while i <= 2:
-        x = i*50
-        vida = Vida(x, 40)
-        spritesVidas.add(vida)
-        i += 1
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -486,7 +508,7 @@ while ejecutando:
     colision = pygame.sprite.spritecollide(jugador, spritesE, False)
     if colision:
         momento_colision = pygame.time.get_ticks()
-        spritesVidas.remove(vida)
+        spritesVidas.remove(vida2)
         if momento_colision - jugador.ultima_colision > jugador.delay_colision:
             cuentaVidas -= 1
             jugador.ultima_colision = momento_colision
@@ -514,26 +536,89 @@ while ejecutando:
     colisionVidaJugador = pygame.sprite.spritecollide(jugador, spritesVidas, True)
     if colisionVidaJugador:
         cuentaVidas += 1
-        vida = Vida(cuentaVidas)
-        spritesVidas.add(vida)
+        vida3 = Vida(cuentaVidas)
+        spritesVidas.add(vida3)
         eliminados = 0
 
     colisionLlaveJugador = pygame.sprite.spritecollide(jugador, spritesLlaves, True)
     if colisionLlaveJugador:
         spritesLlaves.empty()
-        flecha = Flecha(145, 300, 270)
-        flecha2 = Flecha(845, 295, 90)
-        flecha3 = Flecha(500, 140, 180)
+        flecha = Flecha(160, 340, 270)
+        flecha2 = Flecha(1030, 340, 90)
+        flecha3 = Flecha(600, 140, 180)
         spritesFlechas.add(flecha)
         spritesFlechas.add(flecha2)
         spritesFlechas.add(flecha3)
         eliminados = 0
 
     # Cambiar fondo para abrir la puerta -> Al tocar la puerta cambio de pantalla
+
+    if peep1 is None:
+        pass
+    else:
+        colisionBalaPeep1 = pygame.sprite.spritecollide(peep1, balas, True)
+        if colisionBalaPeep1:
+            vidaPeep1 -= 1
+            if vidaPeep1 == 0:
+                spritesPeeps.remove(peep1)
+                peep1.kill()
+                peepsEliminados += 1
+                peep1.disparo = False
+
+        colisionBalaPeep2 = pygame.sprite.spritecollide(peep2, balas, True)
+        if colisionBalaPeep2:
+            vidaPeep2 -= 1
+            if vidaPeep2 == 0:
+                spritesPeeps.remove(peep2)
+                peep2.kill()
+                peepsEliminados += 1
+
+        colisionBalaPeep3 = pygame.sprite.spritecollide(peep3, balas, True)
+        if colisionBalaPeep3:
+            vidaPeep3 -= 1
+            if vidaPeep3 == 0:
+                spritesPeeps.remove(peep3)
+                peep3.kill()
+                peepsEliminados += 1
+
+        colisionBalaPeep4 = pygame.sprite.spritecollide(peep4, balas, True)
+        if colisionBalaPeep4:
+            vidaPeep4 -= 1
+            if vidaPeep4 == 0:
+                spritesPeeps.remove(peep4)
+                peep4.kill()
+                peepsEliminados += 1
+
+    if peepsEliminados == 4:
+        flecha4 = Flecha(600, 140, 180)
+        spritesFlechas.add(flecha4)
+        peepsEliminados = 0
+
     colisionFlechaJugador = pygame.sprite.spritecollide(jugador, spritesFlechas, False)
     if colisionFlechaJugador:
         spritesFlechas.empty()
-        fase = 3
+        fase += 1
+
+    colisionBalasJugador = pygame.sprite.spritecollide(jugador, spritesDisparosPeep, True)
+    if colisionBalasJugador:
+        momento_colision = pygame.time.get_ticks()
+        # Solo se elimina la ultima vida
+        if spritesVidas.has(vida3):
+            spritesVidas.remove(vida3)
+        elif spritesVidas.has(vida2):
+            spritesVidas.remove(vida2)
+        if momento_colision - jugador.ultima_colision > jugador.delay_colision:
+            cuentaVidas -= 1
+            jugador.ultima_colision = momento_colision
+            if cuentaVidas == 0:
+                spritesVidas.empty()
+                jugador.disparar = False
+                # jugador.update = False
+                mensajePerdida = Perder()
+                spritesPerder.add(mensajePerdida)
+                spritesPeeps.empty()
+                spritesDisparosPeep.empty()
+                jugador.image.fill(NEGRO)
 
     spritesPeeps.update()
     spritesDisparosPeep.update()
