@@ -17,21 +17,31 @@ RIGHT = 1065
 TOP = 100
 BOTTOM = 565
 
-movimiento_abajo = ['img/abajo1.png', 'img/abajo1.png', 'img/abajo1.png', 'img/abajo2.png', 'img/abajo2.png', 'img/abajo2.png',
-                    'img/abajo4.png', 'img/abajo4.png', 'img/abajo4.png', 'img/abajo5.png', 'img/abajo5.png', 'img/abajo5.png']
+movimiento_abajo = ['img/abajo1.png', 'img/abajo1.png', 'img/abajo1.png', 'img/abajo2.png', 'img/abajo2.png',
+                    'img/abajo2.png',
+                    'img/abajo4.png', 'img/abajo4.png', 'img/abajo4.png', 'img/abajo5.png', 'img/abajo5.png',
+                    'img/abajo5.png']
 
-movimiento_arriba = ['img/arriba1.png', 'img/arriba1.png', 'img/arriba1.png', 'img/arriba2.png', 'img/arriba2.png', 'img/arriba2.png',
-                     'img/arriba3.png', 'img/arriba3.png', 'img/arriba3.png', 'img/arriba4.png', 'img/arriba4.png', 'img/arriba4.png']
+movimiento_arriba = ['img/arriba1.png', 'img/arriba1.png', 'img/arriba1.png', 'img/arriba2.png', 'img/arriba2.png',
+                     'img/arriba2.png',
+                     'img/arriba3.png', 'img/arriba3.png', 'img/arriba3.png', 'img/arriba4.png', 'img/arriba4.png',
+                     'img/arriba4.png']
 
-movimiento_derecha = ['img/derecha1.png', 'img/derecha1.png', 'img/derecha2.png', 'img/derecha2.png', 'img/derecha3.png', 'img/derecha3.png',
-                      'img/derecha4.png', 'img/derecha4.png', 'img/derecha5.png', 'img/derecha5.png', 'img/derecha6.png', 'img/derecha6.png',
-                      'img/derecha7.png', 'img/derecha7.png', 'img/derecha8.png', 'img/derecha8.png', 'img/derecha9.png', 'img/derecha9.png',
+movimiento_derecha = ['img/derecha1.png', 'img/derecha1.png', 'img/derecha2.png', 'img/derecha2.png',
+                      'img/derecha3.png', 'img/derecha3.png',
+                      'img/derecha4.png', 'img/derecha4.png', 'img/derecha5.png', 'img/derecha5.png',
+                      'img/derecha6.png', 'img/derecha6.png',
+                      'img/derecha7.png', 'img/derecha7.png', 'img/derecha8.png', 'img/derecha8.png',
+                      'img/derecha9.png', 'img/derecha9.png',
                       'img/derecha10.png', 'img/derecha10.png']
 
-movimiento_izquierda = ['img/izquierda1.png', 'img/izquierda1.png', 'img/izquierda2.png', 'img/izquierda2.png', 'img/izquierda3.png', 'img/izquierda3.png',
-                      'img/izquierda4.png', 'img/izquierda4.png', 'img/izquierda5.png', 'img/izquierda5.png', 'img/izquierda6.png', 'img/izquierda6.png',
-                      'img/izquierda7.png', 'img/izquierda7.png', 'img/izquierda8.png', 'img/izquierda8.png', 'img/izquierda9.png', 'img/izquierda9.png',
-                      'img/izquierda10.png', 'img/izquierda10.png']
+movimiento_izquierda = ['img/izquierda1.png', 'img/izquierda1.png', 'img/izquierda2.png', 'img/izquierda2.png',
+                        'img/izquierda3.png', 'img/izquierda3.png',
+                        'img/izquierda4.png', 'img/izquierda4.png', 'img/izquierda5.png', 'img/izquierda5.png',
+                        'img/izquierda6.png', 'img/izquierda6.png',
+                        'img/izquierda7.png', 'img/izquierda7.png', 'img/izquierda8.png', 'img/izquierda8.png',
+                        'img/izquierda9.png', 'img/izquierda9.png',
+                        'img/izquierda10.png', 'img/izquierda10.png']
 
 movimiento_spider = ['img/spider_abajo.png', 'img/spider_abajo2.png', 'img/spider_abajo3.png']
 
@@ -66,7 +76,8 @@ class Jugador(pygame.sprite.Sprite):
         if teclas[pygame.K_w] and teclas[pygame.K_d]:
             self.rect.y -= VELPERSONAJE / 1.5
             self.rect.x += VELPERSONAJE / 1.5
-            self.image = pygame.transform.scale(pygame.image.load(movimiento_arriba[self.frameArriba]).convert(), (40, 40))
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_arriba[self.frameArriba]).convert(),
+                                                (40, 40))
             self.image.set_colorkey(NEGRO)
             self.frameArriba += 1
             self.ultimaDireccion = 'arriba'
@@ -75,7 +86,8 @@ class Jugador(pygame.sprite.Sprite):
         elif teclas[pygame.K_w] and teclas[pygame.K_a]:
             self.rect.y -= VELPERSONAJE / 1.5
             self.rect.x -= VELPERSONAJE / 1.5
-            self.image = pygame.transform.scale(pygame.image.load(movimiento_arriba[self.frameArriba]).convert(), (40, 40))
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_arriba[self.frameArriba]).convert(),
+                                                (40, 40))
             self.image.set_colorkey(NEGRO)
             self.frameArriba += 1
             self.ultimaDireccion = 'arriba'
@@ -84,7 +96,8 @@ class Jugador(pygame.sprite.Sprite):
         elif teclas[pygame.K_s] and teclas[pygame.K_d]:
             self.rect.y += VELPERSONAJE / 1.5
             self.rect.x += VELPERSONAJE / 1.5
-            self.image = pygame.transform.scale(pygame.image.load(movimiento_abajo[self.frameAbajo]).convert(), (40, 40))
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_abajo[self.frameAbajo]).convert(),
+                                                (40, 40))
             self.image.set_colorkey(NEGRO)
             self.frameAbajo += 1
             self.ultimaDireccion = 'abajo'
@@ -93,7 +106,8 @@ class Jugador(pygame.sprite.Sprite):
         elif teclas[pygame.K_s] and teclas[pygame.K_a]:
             self.rect.y += VELPERSONAJE / 1.5
             self.rect.x -= VELPERSONAJE / 1.5
-            self.image = pygame.transform.scale(pygame.image.load(movimiento_abajo[self.frameAbajo]).convert(), (40, 40))
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_abajo[self.frameAbajo]).convert(),
+                                                (40, 40))
             self.image.set_colorkey(NEGRO)
             self.frameAbajo += 1
             self.ultimaDireccion = 'abajo'
@@ -101,7 +115,8 @@ class Jugador(pygame.sprite.Sprite):
                 self.frameAbajo = 0
         elif teclas[pygame.K_a]:
             self.rect.x -= VELPERSONAJE
-            self.image = pygame.transform.scale(pygame.image.load(movimiento_izquierda[self.frameIzq]).convert(), (40, 40))
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_izquierda[self.frameIzq]).convert(),
+                                                (40, 40))
             self.image.set_colorkey(NEGRO)
             self.frameIzq += 1
             self.ultimaDireccion = 'izquierda'
@@ -109,7 +124,8 @@ class Jugador(pygame.sprite.Sprite):
                 self.frameIzq = 0
         elif teclas[pygame.K_d]:
             self.rect.x += VELPERSONAJE
-            self.image = pygame.transform.scale(pygame.image.load(movimiento_derecha[self.frameDer]).convert(), (40, 40))
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_derecha[self.frameDer]).convert(),
+                                                (40, 40))
             self.image.set_colorkey(NEGRO)
             self.frameDer += 1
             self.ultimaDireccion = 'derecha'
@@ -117,7 +133,8 @@ class Jugador(pygame.sprite.Sprite):
                 self.frameDer = 0
         elif teclas[pygame.K_s]:
             self.rect.y += VELPERSONAJE
-            self.image = pygame.transform.scale(pygame.image.load(movimiento_abajo[self.frameAbajo]).convert(), (40, 40))
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_abajo[self.frameAbajo]).convert(),
+                                                (40, 40))
             self.image.set_colorkey(NEGRO)
             self.frameAbajo += 1
             self.ultimaDireccion = 'abajo'
@@ -125,7 +142,8 @@ class Jugador(pygame.sprite.Sprite):
                 self.frameAbajo = 0
         elif teclas[pygame.K_w]:
             self.rect.y -= VELPERSONAJE
-            self.image = pygame.transform.scale(pygame.image.load(movimiento_arriba[self.frameArriba]).convert(), (40, 40))
+            self.image = pygame.transform.scale(pygame.image.load(movimiento_arriba[self.frameArriba]).convert(),
+                                                (40, 40))
             self.image.set_colorkey(NEGRO)
             self.frameArriba += 1
             self.ultimaDireccion = 'arriba'
@@ -189,6 +207,7 @@ class Jugador(pygame.sprite.Sprite):
 
         bala = Disparos(self.rect.centerx, self.rect.centery, direccion, self.ultimaDireccion)
         balas.add(bala)
+
 
 class Enemigo(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -262,6 +281,7 @@ class Enemigo(pygame.sprite.Sprite):
 
 class Disparos(pygame.sprite.Sprite):
     dis = 0
+
     def __init__(self, x, y, direccion, ultimaPosicion):
         super().__init__()
         self.image = pygame.transform.scale(pygame.image.load('img/tears.png').convert(), (20, 20))
@@ -312,6 +332,7 @@ class Disparos(pygame.sprite.Sprite):
         if self.rect.left <= LEFT:
             self.kill()
 
+
 class Vida(pygame.sprite.Sprite):
     def __init__(self, x, y=None):
         super().__init__()
@@ -324,12 +345,14 @@ class Vida(pygame.sprite.Sprite):
         else:
             self.rect.center = (x, y)
 
+
 class Perder(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.transform.scale(pygame.image.load('img/fondoPerder.png').convert(), (400, 504))
         self.rect = self.image.get_rect()
         self.rect.center = (ANCHO // 2, ALTO // 2)
+
 
 class Llave(pygame.sprite.Sprite):
     def __init__(self):
@@ -339,6 +362,7 @@ class Llave(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (ANCHO // 2 + 30, ALTO // 2)
 
+
 class Flecha(pygame.sprite.Sprite):
     def __init__(self, x, y, rotacion):
         super().__init__()
@@ -347,6 +371,7 @@ class Flecha(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.image = pygame.transform.rotate(self.image, rotacion)
+
 
 class Peep(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -369,6 +394,7 @@ class Peep(pygame.sprite.Sprite):
             # peep3.disparo(jugador.rect.centerx, jugador.rect.centery)
             # peep4.disparo(jugador.rect.centerx, jugador.rect.centery)
             self.frame = 0
+
 
 class DisparoPeep(pygame.sprite.Sprite):
     def __init__(self, x, y, posJugadorX, posJugadorY):
@@ -412,13 +438,76 @@ class DisparoPeep(pygame.sprite.Sprite):
         if self.rect.left <= LEFT:
             self.kill()
 
+
 class Widow(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load('img/Original-Widow.png').convert(), (150, 100))
+        self.image = pygame.transform.scale(pygame.image.load('img/Original-Widow.png').convert(), (200, 120))
         self.image.set_colorkey(NEGRO)
         self.rect = self.image.get_rect()
         self.rect.center = (200, 400)
+        self.frame = 0
+        self.reps = 0
+        self.velocidad_x = 3
+        self.velocidad_y = 3
+        self.direccion = 0
+
+    def update(self, posJugadorX, posJugadorY):
+        self.frame += 1
+        print(self.frame)
+        print(self.reps)
+        if self.frame == 100 and self.reps <= 3:
+            if posJugadorX > self.rect.centerx:
+                if posJugadorY > self.rect.centery:
+                    self.direccion = 1
+                else:
+                    self.direccion = 2
+            else:
+                if posJugadorY > self.rect.centery:
+                    self.direccion = 3
+                else:
+                    self.direccion = 4
+            self.reps += 1
+
+        if 101 < self.frame < 200 and self.reps <= 3:
+            self.dash(self.direccion)
+
+        if self.frame == 200:
+            self.frame = 0
+
+        if self.reps == 4:
+            self.velocidad_x = 0
+            self.velocidad_y = 0
+            self.reps = 0
+
+        if self.rect.bottom >= BOTTOM:
+            self.rect.bottom = BOTTOM
+        elif self.rect.top <= TOP:
+            self.rect.top = TOP
+        elif self.rect.right >= RIGHT:
+            self.rect.right = RIGHT
+        elif self.rect.left <= LEFT:
+            self.rect.left = LEFT
+
+    def dash(self, direccion):
+        if direccion == 1:
+            self.velocidad_x = 3
+            self.velocidad_y = 3
+        elif direccion == 2:
+            self.velocidad_x = 3
+            self.velocidad_y = -3
+        elif direccion == 3:
+            self.velocidad_x = -3
+            self.velocidad_y = 3
+        elif direccion == 4:
+            self.velocidad_x = -3
+            self.velocidad_y = -3
+        self.rect.x += self.velocidad_x
+        self.rect.y += self.velocidad_y
+
+    def disparo(self):
+        pass
+
 
 # Inicialización
 pygame.init()
@@ -463,7 +552,6 @@ ejecutando = True
 eliminados = 0
 cuentaVidas = 2
 i = 1
-
 
 vidaPeep1 = 1
 vidaPeep2 = 1
@@ -619,6 +707,7 @@ while ejecutando:
     if spritesVidas.has(vida3_item) or spritesVidas.has(vida4_item):
         colisionVidaJugador = pygame.sprite.groupcollide(spritesVidas, sprites, True, False)
         if colisionVidaJugador:
+            cuentaVidas += 1
             if vida4_item is not None:
                 vida4_item.kill()
                 vida4_contador = Vida(cuentaVidas)
@@ -627,7 +716,6 @@ while ejecutando:
                 vida3_item.kill()
                 vida3_contador = Vida(cuentaVidas)
                 spritesVidas.add(vida3_contador)
-            cuentaVidas += 1
             eliminados = 0
 
     colisionLlaveJugador = pygame.sprite.spritecollide(jugador, spritesLlaves, True)
@@ -655,6 +743,7 @@ while ejecutando:
     sprites.update()
     spritesE.update()
     balas.update()
+    spriteBossFinal.update(jugador.rect.x, jugador.rect.y)
 
     sprites.draw(ventana)
     spritesE.draw(ventana)
