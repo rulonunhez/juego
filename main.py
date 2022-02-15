@@ -10,6 +10,7 @@ FPS = 60
 NEGRO = (0, 0, 0)
 WHITE = (255, 255, 255)
 VELDISPARO = 8
+VELDISPAROE = 5
 VELPERSONAJE = 6
 VELENEMIGO = 3
 LEFT = 125
@@ -395,11 +396,10 @@ class Peep(pygame.sprite.Sprite):
             # peep4.disparo(jugador.rect.centerx, jugador.rect.centery)
             self.frame = 0
 
-
 class DisparoPeep(pygame.sprite.Sprite):
     def __init__(self, x, y, posJugadorX, posJugadorY):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load('img/bloodTears.png').convert(), (30, 30))
+        self.image = pygame.transform.scale(pygame.image.load('img/blood_tears.png').convert(), (30, 30))
         self.image.set_colorkey(NEGRO)
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
@@ -453,32 +453,81 @@ class Widow(pygame.sprite.Sprite):
         self.direccion = 0
 
     def update(self, posJugadorX, posJugadorY):
+        # Necesario ajustar los valores de la imagen y controlar los bordes (en algunos casos)
         self.frame += 1
-        print(self.frame)
-        print(self.reps)
-        if self.frame == 100 and self.reps <= 3:
-            if posJugadorX > self.rect.centerx:
-                if posJugadorY > self.rect.centery:
-                    self.direccion = 1
+        if self.frame == 50 and self.reps <= 3:
+            if self.rect.x + 300 > posJugadorX > self.rect.x - 50:
+                if posJugadorY > self.rect.y:
+                    # Movimiento hacia abajo
+                    self.direccion = 5
                 else:
+                    # Movimiento hacia arriba
+                    self.direccion = 1
+            elif self.rect.y + 100 > posJugadorY > self.rect.y - 50:
+                if posJugadorX < self.rect.x:
+                    # Movimiento hacia la izquierda
+                    self.direccion = 7
+                else:
+                    # Movimiento hacia la derecha
+                    self.direccion = 3
+            elif posJugadorX > self.rect.x + 300:
+                if posJugadorY > self.rect.y + 100:
+                    # Movimiento en diagonal abajo-derecha
+                    self.direccion = 4
+                else:
+                    # Movimiento en diagonal arriba-derecha
                     self.direccion = 2
             else:
-                if posJugadorY > self.rect.centery:
-                    self.direccion = 3
+                if posJugadorY > self.rect.y + 100:
+                    # Movimiento en diagonal abajo-izquierda
+                    self.direccion = 6
                 else:
-                    self.direccion = 4
+                    # Movimiento en diagonal arriba-izquierda
+                    self.direccion = 8
             self.reps += 1
 
-        if 101 < self.frame < 200 and self.reps <= 3:
+        if 51 < self.frame < 100 and self.reps <= 3:
             self.dash(self.direccion)
 
-        if self.frame == 200:
+        if self.frame == 100:
             self.frame = 0
 
         if self.reps == 4:
             self.velocidad_x = 0
             self.velocidad_y = 0
+            self.disparo()
             self.reps = 0
+            self.frame = 0
+
+    def dash(self, direccion):
+        print(direccion)
+        if direccion == 1:
+            self.velocidad_x = 0
+            self.velocidad_y = - (VELDISPAROE + 3)
+        elif direccion == 2:
+            self.velocidad_x = VELDISPAROE
+            self.velocidad_y = -VELDISPAROE
+        elif direccion == 3:
+            self.velocidad_x = VELDISPAROE + 3
+            self.velocidad_y = 0
+        elif direccion == 4:
+            self.velocidad_x = VELDISPAROE
+            self.velocidad_y = VELDISPAROE
+        elif direccion == 5:
+            self.velocidad_x = 0
+            self.velocidad_y = VELDISPAROE + 3
+        elif direccion == 6:
+            self.velocidad_x = -VELDISPAROE
+            self.velocidad_y = VELDISPAROE
+        elif direccion == 7:
+            self.velocidad_x = - (VELDISPAROE + 3)
+            self.velocidad_y = 0
+        elif direccion == 8:
+            self.velocidad_x = -VELDISPAROE
+            self.velocidad_y = -VELDISPAROE
+
+        self.rect.x += self.velocidad_x
+        self.rect.y += self.velocidad_y
 
         if self.rect.bottom >= BOTTOM:
             self.rect.bottom = BOTTOM
@@ -489,25 +538,58 @@ class Widow(pygame.sprite.Sprite):
         elif self.rect.left <= LEFT:
             self.rect.left = LEFT
 
-    def dash(self, direccion):
-        if direccion == 1:
-            self.velocidad_x = 3
-            self.velocidad_y = 3
-        elif direccion == 2:
-            self.velocidad_x = 3
-            self.velocidad_y = -3
-        elif direccion == 3:
-            self.velocidad_x = -3
-            self.velocidad_y = 3
-        elif direccion == 4:
-            self.velocidad_x = -3
-            self.velocidad_y = -3
-        self.rect.x += self.velocidad_x
-        self.rect.y += self.velocidad_y
-
     def disparo(self):
-        pass
+        i = 1
+        while i <= 8:
+            bala = DisparoWidow(self.rect.centerx, self.rect.centery, i)
+            spritesDisparosWidow.add(bala)
+            i += 1
 
+class DisparoWidow(pygame.sprite.Sprite):
+    def __init__(self, x, y, direccion):
+        super().__init__()
+        self.image = pygame.transform.scale(pygame.image.load('img/blood_tears.png').convert(), (30, 30))
+        self.image.set_colorkey(NEGRO)
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.x = x
+        self.y = y
+        self.direccion = direccion
+
+    def update(self):
+        if self.direccion == 1:
+            self.rect.centerx += 0
+            self.rect.centery -= VELDISPAROE + 3
+        elif self.direccion == 2:
+            self.rect.centerx += VELDISPAROE
+            self.rect.centery -= VELDISPAROE
+        elif self.direccion == 3:
+            self.rect.centerx += VELDISPAROE + 3
+            self.rect.centery += 0
+        elif self.direccion == 4:
+            self.rect.centerx += VELDISPAROE
+            self.rect.centery += VELDISPAROE
+        elif self.direccion == 5:
+            self.rect.centerx += 0
+            self.rect.centery += VELDISPAROE + 3
+        elif self.direccion == 6:
+            self.rect.centerx -= VELDISPAROE
+            self.rect.centery += VELDISPAROE
+        elif self.direccion == 7:
+            self.rect.centerx -= VELDISPAROE + 3
+            self.rect.centery += 0
+        elif self.direccion == 8:
+            self.rect.centerx -= VELDISPAROE
+            self.rect.centery -= VELDISPAROE
+
+        if self.rect.bottom >= BOTTOM:
+            self.kill()
+        elif self.rect.top <= TOP:
+            self.kill()
+        elif self.rect.right >= RIGHT:
+            self.kill()
+        elif self.rect.left <= LEFT:
+            self.kill()
 
 # Inicialización
 pygame.init()
@@ -534,6 +616,7 @@ spritesFlechas = pygame.sprite.Group()
 spritesPeeps = pygame.sprite.Group()
 spritesDisparosPeep = pygame.sprite.Group()
 spriteBossFinal = pygame.sprite.Group()
+spritesDisparosWidow = pygame.sprite.Group()
 
 xE = 150
 yE = 150
@@ -743,7 +826,8 @@ while ejecutando:
     sprites.update()
     spritesE.update()
     balas.update()
-    spriteBossFinal.update(jugador.rect.x, jugador.rect.y)
+    spriteBossFinal.update(jugador.rect.centerx, jugador.rect.centery)
+    spritesDisparosWidow.update()
 
     sprites.draw(ventana)
     spritesE.draw(ventana)
@@ -755,6 +839,7 @@ while ejecutando:
     spritesPeeps.draw(ventana)
     spritesDisparosPeep.draw(ventana)
     spriteBossFinal.draw(ventana)
+    spritesDisparosWidow.draw(ventana)
 
     pygame.display.flip()
 
