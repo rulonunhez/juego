@@ -9,6 +9,7 @@ ALTO = 700
 FPS = 60
 NEGRO = (0, 0, 0)
 WHITE = (255, 255, 255)
+ROJO = (255, 0, 0)
 VELDISPARO = 8
 VELDISPAROE = 5
 VELPERSONAJE = 6
@@ -333,7 +334,6 @@ class Disparos(pygame.sprite.Sprite):
         if self.rect.left <= LEFT:
             self.kill()
 
-
 class Vida(pygame.sprite.Sprite):
     def __init__(self, x, y=None):
         super().__init__()
@@ -345,7 +345,6 @@ class Vida(pygame.sprite.Sprite):
             self.rect.center = (contador, 40)
         else:
             self.rect.center = (x, y)
-
 
 class Perder(pygame.sprite.Sprite):
     def __init__(self):
@@ -500,7 +499,6 @@ class Widow(pygame.sprite.Sprite):
             self.frame = 0
 
     def dash(self, direccion):
-        print(direccion)
         if direccion == 1:
             self.velocidad_x = 0
             self.velocidad_y = - (VELDISPAROE + 3)
@@ -591,6 +589,18 @@ class DisparoWidow(pygame.sprite.Sprite):
         elif self.rect.left <= LEFT:
             self.kill()
 
+class VidaWidow(pygame.sprite.Sprite):
+    def __init__(self, ventana):
+        super().__init__()
+        self.image = pygame.transform.scale(pygame.image.load('img/barraVidaWidow.PNG').convert(), (275, 55))
+        self.rect = self.image.get_rect()
+        self.rect.centerx = ANCHO / 2
+        self.rect.centery = ALTO - 50
+        self.ventana = ventana
+
+    def update(self, vidas):
+        pygame.draw.rect(self.ddventana, ROJO, [ANCHO/2, ALTO, 275, 55], 0)
+
 # Inicialización
 pygame.init()
 ventana = pygame.display.set_mode((ANCHO, ALTO))
@@ -617,6 +627,7 @@ spritesPeeps = pygame.sprite.Group()
 spritesDisparosPeep = pygame.sprite.Group()
 spriteBossFinal = pygame.sprite.Group()
 spritesDisparosWidow = pygame.sprite.Group()
+spriteBarraVida = pygame.sprite.Group()
 
 xE = 150
 yE = 150
@@ -625,6 +636,7 @@ fase = 2
 arañasCreadas = False
 peepsCreados = False
 bossCreado = False
+barraVidaCreada = False
 
 jugador = Jugador()
 sprites.add(jugador)
@@ -644,9 +656,14 @@ vidaPeep4 = 1
 # vidaPeep2 = 5
 # vidaPeep3 = 5
 # vidaPeep4 = 5
+
+vidaWidow = 10
+
 peepsEliminados = 0
 
 peep1 = None
+
+bossFinal = None
 
 # Vidas del contador
 vida1_contador = Vida(1)
@@ -821,6 +838,20 @@ while ejecutando:
         spritesFlechas.empty()
         fase += 1
 
+    if bossFinal is not None:
+        if barraVidaCreada == False:
+            barraVidaWidow = VidaWidow(ventana)
+            spriteBarraVida.add(barraVidaWidow)
+            barraVidaCreada = True
+
+        colisionBalaWidow = pygame.sprite.spritecollide(bossFinal, balas, True)
+        if colisionBalaWidow:
+            vidaWidow -= 1
+            spriteBarraVida.update(vidaWidow)
+            if vidaWidow == 0:
+                spritesDisparosWidow.empty()
+                balas.empty()
+
     spritesPeeps.update()
     spritesDisparosPeep.update()
     sprites.update()
@@ -840,6 +871,7 @@ while ejecutando:
     spritesDisparosPeep.draw(ventana)
     spriteBossFinal.draw(ventana)
     spritesDisparosWidow.draw(ventana)
+    spriteBarraVida.draw(ventana)
 
     pygame.display.flip()
 
