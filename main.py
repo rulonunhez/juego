@@ -599,7 +599,7 @@ class VidaWidow(pygame.sprite.Sprite):
         self.ventana = ventana
 
     def update(self, vidas):
-        pygame.draw.rect(self.ddventana, ROJO, [ANCHO/2, ALTO, 275, 55], 0)
+        pygame.draw.rect(self.ventana, ROJO, [ANCHO/2, ALTO, 275, 55], 0)
 
 # Inicialización
 pygame.init()
