@@ -47,6 +47,18 @@ movimiento_izquierda = ['img/izquierda1.png', 'img/izquierda1.png', 'img/izquier
 
 movimiento_spider = ['img/spider_abajo.png', 'img/spider_abajo2.png', 'img/spider_abajo3.png']
 
+movimiento_peep = ['img/peeps/peep2.png', 'img/peeps/peep1.png']
+
+movimiento_widow = ['img/widow/widow1.png', 'img/widow/widow2.png']
+
+barra_vida = ['img/barraVida/barraVida1.png', 'img/barraVida/barraVida2.png', 'img/barraVida/barraVida3.png',
+              'img/barraVida/barraVida4.png', 'img/barraVida/barraVida5.png', 'img/barraVida/barraVida6.png',
+              'img/barraVida/barraVida7.png', 'img/barraVida/barraVida8.png', 'img/barraVida/barraVida9.png',
+              'img/barraVida/barraVida10.png', 'img/barraVida/barraVida11.png', 'img/barraVida/barraVida12.png',
+              'img/barraVida/barraVida13.png', 'img/barraVida/barraVida14.png', 'img/barraVida/barraVida15.png',
+              'img/barraVida/barraVida16.png', 'img/barraVida/barraVida17.png', 'img/barraVida/barraVida18.png',
+              'img/barraVida/barraVida19.png', 'img/barraVida/barraVida20.png', 'img/barraVida/barraVida21.png']
+
 
 class Jugador(pygame.sprite.Sprite):
     def __init__(self):
@@ -347,9 +359,9 @@ class Vida(pygame.sprite.Sprite):
             self.rect.center = (x, y)
 
 class Perder(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, imagen):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load('img/fondoPerder.png').convert(), (400, 504))
+        self.image = pygame.transform.scale(pygame.image.load(imagen).convert(), (400, 504))
         self.rect = self.image.get_rect()
         self.rect.center = (ANCHO // 2, ALTO // 2)
 
@@ -376,7 +388,7 @@ class Flecha(pygame.sprite.Sprite):
 class Peep(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load('img/peep2.png').convert(), (100, 100))
+        self.image = pygame.transform.scale(pygame.image.load('img/peeps/peep2.png').convert(), (100, 100))
         self.image.set_colorkey(NEGRO)
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
@@ -388,7 +400,12 @@ class Peep(pygame.sprite.Sprite):
 
     def update(self):
         self.frame += 1
+        if self.frame == 20:
+            self.image = pygame.transform.scale(pygame.image.load('img/peeps/peep2.png').convert(), (100, 100))
+            self.image.set_colorkey(NEGRO)
         if self.frame == 125:
+            self.image = pygame.transform.scale(pygame.image.load('img/peeps/peep1.png').convert(), (100, 100))
+            self.image.set_colorkey(NEGRO)
             self.disparo(jugador.rect.centerx, jugador.rect.centery)
             # peep2.disparo(jugador.rect.centerx, jugador.rect.centery)
             # peep3.disparo(jugador.rect.centerx, jugador.rect.centery)
@@ -441,7 +458,7 @@ class DisparoPeep(pygame.sprite.Sprite):
 class Widow(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load('img/Original-Widow.png').convert(), (200, 120))
+        self.image = pygame.transform.scale(pygame.image.load('img/widow/widow1.png').convert(), (210, 109))
         self.image.set_colorkey(NEGRO)
         self.rect = self.image.get_rect()
         self.rect.center = (200, 400)
@@ -450,6 +467,7 @@ class Widow(pygame.sprite.Sprite):
         self.velocidad_x = 3
         self.velocidad_y = 3
         self.direccion = 0
+        self.foto = 0
 
     def update(self, posJugadorX, posJugadorY):
         # Necesario ajustar los valores de la imagen y controlar los bordes (en algunos casos)
@@ -486,7 +504,26 @@ class Widow(pygame.sprite.Sprite):
             self.reps += 1
 
         if 51 < self.frame < 100 and self.reps <= 3:
+            if self.frame % 4 == 0:
+                print(self.frame)
+                print(self.foto)
+                self.image = pygame.transform.scale(pygame.image.load(movimiento_widow[self.foto]).convert(),
+                                                    (210, 109))
+                self.image.set_colorkey(NEGRO)
+                self.foto += 1
+                if self.foto == 2:
+                    self.foto = 0
             self.dash(self.direccion)
+        else:
+            if self.reps == 3:
+                self.image = pygame.transform.scale(pygame.image.load('img/widow/widowCargando.png').convert(),
+                                                    (210, 109))
+                self.image.set_colorkey(NEGRO)
+
+            elif self.reps == 4:
+                self.image = pygame.transform.scale(pygame.image.load('img/widow/widowDisparando.png').convert(),
+                                                    (210, 109))
+                self.image.set_colorkey(NEGRO)
 
         if self.frame == 100:
             self.frame = 0
@@ -592,7 +629,8 @@ class DisparoWidow(pygame.sprite.Sprite):
 class VidaWidow(pygame.sprite.Sprite):
     def __init__(self, ventana):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load('img/barraVidaWidow.PNG').convert(), (275, 55))
+        self.image = pygame.transform.scale(pygame.image.load('img/barraVida/barraVida1.PNG').convert(), (255, 36))
+        self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
         self.rect.centerx = ANCHO / 2
         self.rect.centery = ALTO - 50
@@ -612,7 +650,7 @@ pygame.display.set_caption('The Binding of Isaac')
 # Icono y fondo
 icono = pygame.image.load('img/icono.png')
 pygame.display.set_icon(icono)
-fondo = pygame.transform.scale(pygame.image.load('img/fondo.png').convert(), (1200, 700))
+fondo = pygame.transform.scale(pygame.image.load('img//fondos/fondo.png').convert(), (1200, 700))
 
 # Grupos de sprites, interpretación del objeto jugador.
 sprites = pygame.sprite.Group()
@@ -648,16 +686,12 @@ eliminados = 0
 cuentaVidas = 2
 i = 1
 
-vidaPeep1 = 1
-vidaPeep2 = 1
-vidaPeep3 = 1
-vidaPeep4 = 1
-# vidaPeep1 = 5
-# vidaPeep2 = 5
-# vidaPeep3 = 5
-# vidaPeep4 = 5
+vidaPeep1 = 5
+vidaPeep2 = 5
+vidaPeep3 = 5
+vidaPeep4 = 5
 
-vidaWidow = 10
+vidaWidow = 0
 
 peepsEliminados = 0
 
@@ -681,14 +715,13 @@ while ejecutando:
         # Cambiar a 8 antes de seguir con las pruebas
         araña1 = Enemigo(150, 150)
         araña2 = Enemigo(250, 150)
-        # araña3 = Enemigo(700, 150)
-        # araña4 = Enemigo(800, 150)
-        # araña5 = Enemigo(800, 500)
-        # araña6 = Enemigo(700, 500)
-        # araña7 = Enemigo(250, 500)
-        # araña8 = Enemigo(150, 500)
-        # spritesE.add(araña1, araña2, araña3, araña4, araña5, araña6, araña7, araña8)
-        spritesE.add(araña1, araña2)
+        araña3 = Enemigo(700, 150)
+        araña4 = Enemigo(800, 150)
+        araña5 = Enemigo(800, 500)
+        araña6 = Enemigo(700, 500)
+        araña7 = Enemigo(250, 500)
+        araña8 = Enemigo(150, 500)
+        spritesE.add(araña1, araña2, araña3, araña4, araña5, araña6, araña7, araña8)
         arañasCreadas = True
 
     elif fase == 3 and peepsCreados == False:
@@ -720,7 +753,7 @@ while ejecutando:
                 spritesVidas.empty()
                 jugador.disparar = False
                 # jugador.update = False
-                mensajePerdida = Perder()
+                mensajePerdida = Perder('img/fondos/fondoPerderAraña.png')
                 spritesPerder.add(mensajePerdida)
                 spritesE.empty()
                 balas.empty()
@@ -731,7 +764,7 @@ while ejecutando:
         eliminados += 1
 
     # Cambiar a 8
-    if eliminados == 2:
+    if eliminados == 8:
         vida3_item = Vida(ANCHO // 2 - 30, ALTO // 2)
         spritesVidas.add(vida3_item)
         llave = Llave()
@@ -787,18 +820,18 @@ while ejecutando:
     if colisionBalasJugador:
         momento_colision = pygame.time.get_ticks()
         # Solo se elimina la ultima vida
-        if spritesVidas.has(vida3_contador):
-            spritesVidas.remove(vida3_contador)
-        elif spritesVidas.has(vida2_contador):
-            spritesVidas.remove(vida2_contador)
         if momento_colision - jugador.ultima_colision > jugador.delay_colision:
             cuentaVidas -= 1
+            if spritesVidas.has(vida3_contador):
+                spritesVidas.remove(vida3_contador)
+            elif spritesVidas.has(vida2_contador):
+                spritesVidas.remove(vida2_contador)
             jugador.ultima_colision = momento_colision
             if cuentaVidas == 0:
                 spritesVidas.empty()
                 jugador.disparar = False
                 # jugador.update = False
-                mensajePerdida = Perder()
+                mensajePerdida = Perder('img/fondos/fondoPerderPeep.png')
                 spritesPerder.add(mensajePerdida)
                 spritesPeeps.empty()
                 spritesDisparosPeep.empty()
@@ -812,7 +845,7 @@ while ejecutando:
                 vida4_item.kill()
                 vida4_contador = Vida(cuentaVidas)
                 spritesVidas.add(vida4_contador)
-            if vida3_item is not None:
+            else:
                 vida3_item.kill()
                 vida3_contador = Vida(cuentaVidas)
                 spritesVidas.add(vida3_contador)
@@ -846,11 +879,60 @@ while ejecutando:
 
         colisionBalaWidow = pygame.sprite.spritecollide(bossFinal, balas, True)
         if colisionBalaWidow:
-            vidaWidow -= 1
+            vidaWidow += 1
+            barraVidaWidow.image = pygame.transform.scale(pygame.image.load(barra_vida[vidaWidow]).convert(), (255, 36))
+            barraVidaWidow.image.set_colorkey(WHITE)
             spriteBarraVida.update(vidaWidow)
-            if vidaWidow == 0:
+            if vidaWidow == 20:
                 spritesDisparosWidow.empty()
+                spriteBossFinal.empty()
+                spriteBarraVida.empty()
                 balas.empty()
+
+        colisionJugadorDisparo = pygame.sprite.spritecollide(jugador, spritesDisparosWidow, True)
+        if colisionJugadorDisparo:
+            cuentaVidas -= 1
+            if spritesVidas.has(vida4_contador):
+                spritesVidas.remove(vida4_contador)
+            elif spritesVidas.has(vida3_contador):
+                spritesVidas.remove(vida3_contador)
+            elif spritesVidas.has(vida2_contador):
+                spritesVidas.remove(vida2_contador)
+            if cuentaVidas == 0:
+                spritesVidas.empty()
+                jugador.disparar = False
+                # jugador.update = False
+                mensajePerdida = Perder('img/fondos/fondoPerderWidow.png')
+                spritesPerder.add(mensajePerdida)
+                spritesDisparosWidow.empty()
+                spriteBossFinal.empty()
+                spriteBarraVida.empty()
+                balas.empty()
+                jugador.image.fill(NEGRO)
+
+        colisionJugadorWidow = pygame.sprite.spritecollide(jugador, spriteBossFinal, False)
+        if colisionJugadorWidow:
+            momento_colision = pygame.time.get_ticks()
+            if momento_colision - jugador.ultima_colision > jugador.delay_colision:
+                cuentaVidas -= 1
+                if spritesVidas.has(vida4_contador):
+                    spritesVidas.remove(vida4_contador)
+                elif spritesVidas.has(vida3_contador):
+                    spritesVidas.remove(vida3_contador)
+                elif spritesVidas.has(vida2_contador):
+                    spritesVidas.remove(vida2_contador)
+                jugador.ultima_colision = momento_colision
+                if cuentaVidas == 0:
+                    spritesVidas.empty()
+                    jugador.disparar = False
+                    # jugador.update = False
+                    mensajePerdida = Perder('img/fondos/fondoPerderWidow.png')
+                    spritesPerder.add(mensajePerdida)
+                    spritesDisparosWidow.empty()
+                    spriteBossFinal.empty()
+                    spriteBarraVida.empty()
+                    balas.empty()
+                    jugador.image.fill(NEGRO)
 
     spritesPeeps.update()
     spritesDisparosPeep.update()
