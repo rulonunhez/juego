@@ -1,7 +1,10 @@
+import sqlite3
 from dis import dis
 
 import pygame, sys
 import random
+
+from PyQt5 import QtSql
 from pygame.locals import *
 
 ANCHO = 1200
@@ -81,7 +84,7 @@ class Jugador(pygame.sprite.Sprite):
         self.disparar = True
 
     def update(self):
-        ventana.blit(fondo, (0, 0))
+        # ventana.blit(fondo, (0, 0))
 
         # Mantiene las teclas pulsadas
         teclas = pygame.key.get_pressed()
@@ -346,6 +349,7 @@ class Disparos(pygame.sprite.Sprite):
         if self.rect.left <= LEFT:
             self.kill()
 
+
 class Vida(pygame.sprite.Sprite):
     def __init__(self, x, y=None):
         super().__init__()
@@ -357,6 +361,7 @@ class Vida(pygame.sprite.Sprite):
             self.rect.center = (contador, 40)
         else:
             self.rect.center = (x, y)
+
 
 class Perder(pygame.sprite.Sprite):
     def __init__(self, imagen):
@@ -411,6 +416,7 @@ class Peep(pygame.sprite.Sprite):
             # peep3.disparo(jugador.rect.centerx, jugador.rect.centery)
             # peep4.disparo(jugador.rect.centerx, jugador.rect.centery)
             self.frame = 0
+
 
 class DisparoPeep(pygame.sprite.Sprite):
     def __init__(self, x, y, posJugadorX, posJugadorY):
@@ -505,8 +511,6 @@ class Widow(pygame.sprite.Sprite):
 
         if 51 < self.frame < 100 and self.reps <= 3:
             if self.frame % 4 == 0:
-                print(self.frame)
-                print(self.foto)
                 self.image = pygame.transform.scale(pygame.image.load(movimiento_widow[self.foto]).convert(),
                                                     (210, 109))
                 self.image.set_colorkey(NEGRO)
@@ -580,6 +584,7 @@ class Widow(pygame.sprite.Sprite):
             spritesDisparosWidow.add(bala)
             i += 1
 
+
 class DisparoWidow(pygame.sprite.Sprite):
     def __init__(self, x, y, direccion):
         super().__init__()
@@ -626,6 +631,7 @@ class DisparoWidow(pygame.sprite.Sprite):
         elif self.rect.left <= LEFT:
             self.kill()
 
+
 class VidaWidow(pygame.sprite.Sprite):
     def __init__(self, ventana):
         super().__init__()
@@ -636,8 +642,18 @@ class VidaWidow(pygame.sprite.Sprite):
         self.rect.centery = ALTO - 50
         self.ventana = ventana
 
+
+class ImagenTeclado(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.transform.scale(pygame.image.load('img/instrucciones.png').convert(), (502, 300))
+        self.image.set_colorkey(NEGRO)
+        self.rect = self.image.get_rect()
+        self.rect.center = (500, 400)
+
     def update(self, vidas):
-        pygame.draw.rect(self.ventana, ROJO, [ANCHO/2, ALTO, 275, 55], 0)
+        pygame.draw.rect(self.ventana, ROJO, [ANCHO / 2, ALTO, 275, 55], 0)
+
 
 # Inicialización
 pygame.init()
@@ -650,7 +666,7 @@ pygame.display.set_caption('The Binding of Isaac')
 # Icono y fondo
 icono = pygame.image.load('img/icono.png')
 pygame.display.set_icon(icono)
-fondo = pygame.transform.scale(pygame.image.load('img//fondos/fondo.png').convert(), (1200, 700))
+fondo = pygame.transform.scale(pygame.image.load('img//fondos/fondo.png').convert(), (ANCHO, ALTO))
 
 # Grupos de sprites, interpretación del objeto jugador.
 sprites = pygame.sprite.Group()
@@ -666,18 +682,115 @@ spritesDisparosPeep = pygame.sprite.Group()
 spriteBossFinal = pygame.sprite.Group()
 spritesDisparosWidow = pygame.sprite.Group()
 spriteBarraVida = pygame.sprite.Group()
+spriteImagenInstrucciones = pygame.sprite.Group()
+
+filename ='bbdd.sqlite'
+
+# Funciones para la conexión con la base de datos
+def db_connect(filename):
+    try:
+        db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
+        db.setDatabaseName(filename)
+        if not db.open():
+            return False
+        else:
+            print('Conexión establecida')
+            return True
+    except Exception as error:
+        print('Problemas en conexión ', error)
+
+def add_puntuacion():
+    try:
+        query = QtSql.QSqlQuery()
+        tiempo = momento_win ** (-1) * 1000000
+        total = cuentaVidas * tiempo
+        query.prepare('insert into puntuaciones (tiempo, vidas, total) values (:tiempo, :vidas, :total)')
+        query.bindValue(':tiempo', float(momento_win))
+        query.bindValue(':vidas', int(cuentaVidas))
+        query.bindValue(':total', float(total))
+        print(tiempo, cuentaVidas, total)
+        if query.exec_():
+            print('Puntuación subida')
+        else:
+            print(query.lastError().text())
+    except Exception as error:
+        print('Error subiendo una puntuación', error)
+
+# Funciones para los menús
+def draw_text(text, font, color, surface, x, y):
+    textobj = font.render(text, 1, color)
+    textrect = textobj.get_rect()
+    textrect.topleft = (x, y)
+    surface.blit(textobj, textrect)
+
+
+def options():
+    running = True
+    while running:
+        ventana.blit(fondo, (0, 0))
+
+        draw_text('Instrucciones', font, (255, 255, 255), ventana, 60, 50)
+        lore = pygame.Rect(150, 130, 890, 125)
+        pygame.draw.rect(ventana, NEGRO, lore)
+        draw_text('Tú y tu hermano entrasteis en esta cueva para jugar un rato pero algo salió de las', font2, WHITE,
+                  ventana, 160, 140)
+        draw_text('sombras y se lo llevó. Te sientes muy triste y enfadado y decides entrar en la cueva', font2, WHITE,
+                  ventana, 160, 160)
+        draw_text('a buscarlo. En la cueva acechan monstruos y trampas, ten cuidado, para derrotarlos', font2, WHITE,
+                  ventana, 160, 180)
+        draw_text('puedes canalizar tu ira y disparar tus lagrimas.', font2, WHITE,
+                  ventana, 160, 200)
+        draw_text('¡¡¡¡Encuentralo antes de que sea demasiado tarde!!!!', font2, WHITE,
+                  ventana, 160, 220)
+        instrucciones = ImagenTeclado()
+        spriteImagenInstrucciones.add(instrucciones)
+        pygame.draw.circle(ventana, NEGRO, (520, 317), 7)
+        draw_text('Movimiento', font2, WHITE,
+                  ventana, 540, 310)
+        pygame.draw.circle(ventana, NEGRO, (380, 419), 7)
+        draw_text('Salir / Volver al menú principal', font2, WHITE,
+                  ventana, 400, 412)
+        pygame.draw.circle(ventana, NEGRO, (800, 510), 7)
+        draw_text('Disparar', font2, WHITE,
+                  ventana, 820, 503)
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    running = False
+
+        spriteImagenInstrucciones.draw(ventana)
+        pygame.display.update()
+        clock.tick(60)
+
+def puntuaciones():
+    running = True
+    while running:
+        ventana.blit(fondo, (0, 0))
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    running = False
+
+        pygame.display.update()
+        clock.tick(60)
 
 xE = 150
 yE = 150
 
-fase = 2
+jugadorCreado = False
 arañasCreadas = False
 peepsCreados = False
 bossCreado = False
 barraVidaCreada = False
-
-jugador = Jugador()
-sprites.add(jugador)
+vidasCreadas = False
 
 # Bucle de juego
 ejecutando = True
@@ -695,23 +808,70 @@ vidaWidow = 0
 
 peepsEliminados = 0
 
+jugador = None
 peep1 = None
-
 bossFinal = None
-
-# Vidas del contador
-vida1_contador = Vida(1)
-vida2_contador = Vida(2)
-spritesVidas.add(vida1_contador, vida2_contador)
 
 colisionVidaJugador = False
 vida3_item = None
 vida4_item = None
 
+fase = 1
+click = False
+
+font = pygame.font.SysFont(None, 50)
+font2 = pygame.font.SysFont(None, 30)
+
+db_connect(filename)
+
 while ejecutando:
     clock.tick(FPS)
 
-    if fase == 2 and arañasCreadas == False:
+    if fase != 1:
+        ventana.blit(fondo, (0, 0))
+        if jugadorCreado == False:
+            jugador = Jugador()
+            sprites.add(jugador)
+            jugadorCreado = True
+
+    if fase == 1:
+        ventana.blit(fondo, (0, 0))
+        draw_text('The Binding of Isaac', font, (255, 255, 255), ventana, 425, 150)
+        draw_text('Menú', font2, (255, 255, 255), ventana, 570, 200)
+
+        mx, my = pygame.mouse.get_pos()
+
+        button_1 = pygame.Rect(500, ALTO / 2 - 100, 200, 65)
+        button_2 = pygame.Rect(500, ALTO / 2, 200, 65)
+
+        if button_1.collidepoint((mx, my)):
+            if click:
+                fase = 2
+        if button_2.collidepoint((mx, my)):
+            if click:
+                options()
+        pygame.draw.ellipse(ventana, NEGRO, button_1, 80)
+        pygame.draw.ellipse(ventana, NEGRO, button_2, 80)
+        draw_text('Jugar', font2, (255, 255, 255), ventana, 570, 270)
+        draw_text('Instrucciones', font2, (255, 255, 255), ventana, 535, 370)
+
+        click = False
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+            if event.type == MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    click = True
+
+        pygame.display.flip()
+
+    elif fase == 2 and arañasCreadas == False:
         # Cambiar a 8 antes de seguir con las pruebas
         araña1 = Enemigo(150, 150)
         araña2 = Enemigo(250, 150)
@@ -737,27 +897,102 @@ while ejecutando:
         spriteBossFinal.add(bossFinal)
         bossCreado = True
 
+    teclas = pygame.key.get_pressed()
+    if teclas[pygame.K_ESCAPE] and jugador is not None:
+        fase = 1
+        jugador.kill()
+        spritesE.empty()
+        spritesVidas.empty()
+        jugadorCreado = False
+        arañasCreadas = False
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             ejecutando = False
+
     # spriteBossFinal.update()
 
-    colision = pygame.sprite.spritecollide(jugador, spritesE, False)
-    if colision:
-        momento_colision = pygame.time.get_ticks()
-        spritesVidas.remove(vida2_contador)
-        if momento_colision - jugador.ultima_colision > jugador.delay_colision:
-            cuentaVidas -= 1
-            jugador.ultima_colision = momento_colision
-            if cuentaVidas == 0:
-                spritesVidas.empty()
-                jugador.disparar = False
-                # jugador.update = False
-                mensajePerdida = Perder('img/fondos/fondoPerderAraña.png')
-                spritesPerder.add(mensajePerdida)
-                spritesE.empty()
-                balas.empty()
-                jugador.image.fill(NEGRO)
+    if sprites.has(jugador):
+        # Vidas del contador
+        if vidasCreadas == False:
+            vida1_contador = Vida(1)
+            vida2_contador = Vida(2)
+            spritesVidas.add(vida1_contador, vida2_contador)
+            vidasCreadas = True
+
+        colision = pygame.sprite.spritecollide(jugador, spritesE, False)
+        if colision:
+            momento_colision = pygame.time.get_ticks()
+            spritesVidas.remove(vida2_contador)
+            if momento_colision - jugador.ultima_colision > jugador.delay_colision:
+                cuentaVidas -= 1
+                jugador.ultima_colision = momento_colision
+                if cuentaVidas == 0:
+                    spritesVidas.empty()
+                    jugador.disparar = False
+                    # jugador.update = False
+                    mensajePerdida = Perder('img/fondos/fondoPerderAraña.png')
+                    spritesPerder.add(mensajePerdida)
+                    spritesE.empty()
+                    balas.empty()
+                    jugador.image.fill(NEGRO)
+
+        if spritesVidas.has(vida3_item) or spritesVidas.has(vida4_item):
+            colisionVidaJugador = pygame.sprite.groupcollide(spritesVidas, sprites, True, False)
+            if colisionVidaJugador:
+                cuentaVidas += 1
+                if vida4_item is not None:
+                    vida4_item.kill()
+                    vida4_contador = Vida(cuentaVidas)
+                    spritesVidas.add(vida4_contador)
+                else:
+                    vida3_item.kill()
+                    vida3_contador = Vida(cuentaVidas)
+                    spritesVidas.add(vida3_contador)
+                eliminados = 0
+
+        colisionBalasJugador = pygame.sprite.spritecollide(jugador, spritesDisparosPeep, True)
+        if colisionBalasJugador:
+            momento_colision = pygame.time.get_ticks()
+            # Solo se elimina la ultima vida
+            if momento_colision - jugador.ultima_colision > jugador.delay_colision:
+                cuentaVidas -= 1
+                if spritesVidas.has(vida3_contador):
+                    spritesVidas.remove(vida3_contador)
+                elif spritesVidas.has(vida2_contador):
+                    spritesVidas.remove(vida2_contador)
+                jugador.ultima_colision = momento_colision
+                if cuentaVidas == 0:
+                    spritesVidas.empty()
+                    jugador.disparar = False
+                    # jugador.update = False
+                    mensajePerdida = Perder('img/fondos/fondoPerderPeep.png')
+                    spritesPerder.add(mensajePerdida)
+                    spritesPeeps.empty()
+                    spritesDisparosPeep.empty()
+                    jugador.image.fill(NEGRO)
+
+        colisionLlaveJugador = pygame.sprite.spritecollide(jugador, spritesLlaves, True)
+        if colisionLlaveJugador:
+            if fase == 2:
+                spritesLlaves.empty()
+                flecha = Flecha(160, 340, 270)
+                flecha2 = Flecha(1030, 340, 90)
+                flecha3 = Flecha(600, 140, 180)
+                spritesFlechas.add(flecha)
+                spritesFlechas.add(flecha2)
+                spritesFlechas.add(flecha3)
+                eliminados = 0
+            elif fase == 3:
+                flecha4 = Flecha(600, 140, 180)
+                spritesFlechas.add(flecha4)
+
+        colisionFlechaJugador = pygame.sprite.spritecollide(jugador, spritesFlechas, False)
+        if colisionFlechaJugador:
+            spritesFlechas.empty()
+            fase += 1
+
+        spriteBossFinal.update(jugador.rect.centerx, jugador.rect.centery)
 
     colision2 = pygame.sprite.groupcollide(spritesE, balas, True, True)
     if colision2:
@@ -816,61 +1051,6 @@ while ejecutando:
         spritesDisparosPeep.empty()
         peepsEliminados = 0
 
-    colisionBalasJugador = pygame.sprite.spritecollide(jugador, spritesDisparosPeep, True)
-    if colisionBalasJugador:
-        momento_colision = pygame.time.get_ticks()
-        # Solo se elimina la ultima vida
-        if momento_colision - jugador.ultima_colision > jugador.delay_colision:
-            cuentaVidas -= 1
-            if spritesVidas.has(vida3_contador):
-                spritesVidas.remove(vida3_contador)
-            elif spritesVidas.has(vida2_contador):
-                spritesVidas.remove(vida2_contador)
-            jugador.ultima_colision = momento_colision
-            if cuentaVidas == 0:
-                spritesVidas.empty()
-                jugador.disparar = False
-                # jugador.update = False
-                mensajePerdida = Perder('img/fondos/fondoPerderPeep.png')
-                spritesPerder.add(mensajePerdida)
-                spritesPeeps.empty()
-                spritesDisparosPeep.empty()
-                jugador.image.fill(NEGRO)
-
-    if spritesVidas.has(vida3_item) or spritesVidas.has(vida4_item):
-        colisionVidaJugador = pygame.sprite.groupcollide(spritesVidas, sprites, True, False)
-        if colisionVidaJugador:
-            cuentaVidas += 1
-            if vida4_item is not None:
-                vida4_item.kill()
-                vida4_contador = Vida(cuentaVidas)
-                spritesVidas.add(vida4_contador)
-            else:
-                vida3_item.kill()
-                vida3_contador = Vida(cuentaVidas)
-                spritesVidas.add(vida3_contador)
-            eliminados = 0
-
-    colisionLlaveJugador = pygame.sprite.spritecollide(jugador, spritesLlaves, True)
-    if colisionLlaveJugador:
-        if fase == 2:
-            spritesLlaves.empty()
-            flecha = Flecha(160, 340, 270)
-            flecha2 = Flecha(1030, 340, 90)
-            flecha3 = Flecha(600, 140, 180)
-            spritesFlechas.add(flecha)
-            spritesFlechas.add(flecha2)
-            spritesFlechas.add(flecha3)
-            eliminados = 0
-        elif fase == 3:
-            flecha4 = Flecha(600, 140, 180)
-            spritesFlechas.add(flecha4)
-
-    colisionFlechaJugador = pygame.sprite.spritecollide(jugador, spritesFlechas, False)
-    if colisionFlechaJugador:
-        spritesFlechas.empty()
-        fase += 1
-
     if bossFinal is not None:
         if barraVidaCreada == False:
             barraVidaWidow = VidaWidow(ventana)
@@ -888,6 +1068,10 @@ while ejecutando:
                 spriteBossFinal.empty()
                 spriteBarraVida.empty()
                 balas.empty()
+                momento_win = pygame.time.get_ticks()
+                add_puntuacion()
+                puntuaciones()
+
 
         colisionJugadorDisparo = pygame.sprite.spritecollide(jugador, spritesDisparosWidow, True)
         if colisionJugadorDisparo:
@@ -939,7 +1123,6 @@ while ejecutando:
     sprites.update()
     spritesE.update()
     balas.update()
-    spriteBossFinal.update(jugador.rect.centerx, jugador.rect.centery)
     spritesDisparosWidow.update()
 
     sprites.draw(ventana)
