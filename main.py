@@ -1,7 +1,8 @@
 import sqlite3
 from dis import dis
 
-import pygame, sys
+import pygame
+import sys
 import random
 
 from PyQt5 import QtSql
@@ -770,6 +771,25 @@ def puntuaciones():
     running = True
     while running:
         ventana.blit(fondo, (0, 0))
+        tiempo = momento_win ** (-1) * 1000000
+        total = cuentaVidas * tiempo
+        draw_text('Tu puntuacion: ' + str(round(total, 2)), font, WHITE, ventana, 410, 150)
+        draw_text('Mejores puntuaciones ', font, WHITE, ventana, 400, 200)
+        draw_text('TIEMPO', font, WHITE, ventana, 200, 300)
+        draw_text('VIDAS', font, WHITE, ventana, 500, 300)
+        draw_text('TOTAL', font, WHITE, ventana, 800, 300)
+        query = QtSql.QSqlQuery()
+        query.prepare('select tiempo, vidas, total from puntuaciones order by total desc')
+        x, j = (220, 350)
+        if query.exec_():
+            while query.next() and j <= 490:
+                tiempo = str(round(query.value(0), 2))
+                vidas = str(query.value(1))
+                total = str(round(query.value(2), 2))
+                draw_text(tiempo, font2, WHITE, ventana, x, j)
+                draw_text(vidas, font2, WHITE, ventana, x + 330, j)
+                draw_text(total, font2, WHITE, ventana, x + 610, j)
+                j += 70
 
         for event in pygame.event.get():
             if event.type == QUIT:
