@@ -370,7 +370,7 @@ class Perder(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(pygame.image.load(imagen).convert(), (400, 504))
         self.rect = self.image.get_rect()
         self.rect.center = (ANCHO // 2, ALTO // 2)
-
+        sprites.empty()
 
 class Llave(pygame.sprite.Sprite):
     def __init__(self):
@@ -409,7 +409,7 @@ class Peep(pygame.sprite.Sprite):
         if self.frame == 20:
             self.image = pygame.transform.scale(pygame.image.load('img/peeps/peep2.png').convert(), (100, 100))
             self.image.set_colorkey(NEGRO)
-        if self.frame == 125:
+        if self.frame == 80:
             self.image = pygame.transform.scale(pygame.image.load('img/peeps/peep1.png').convert(), (100, 100))
             self.image.set_colorkey(NEGRO)
             self.disparo(jugador.rect.centerx, jugador.rect.centery)
@@ -703,13 +703,12 @@ def db_connect(filename):
 def add_puntuacion():
     try:
         query = QtSql.QSqlQuery()
-        tiempo = momento_win ** (-1) * 1000000
+        tiempo = momento_win ** (-1) * 10000000
         total = cuentaVidas * tiempo
         query.prepare('insert into puntuaciones (tiempo, vidas, total) values (:tiempo, :vidas, :total)')
         query.bindValue(':tiempo', float(momento_win))
         query.bindValue(':vidas', int(cuentaVidas))
         query.bindValue(':total', float(total))
-        print(tiempo, cuentaVidas, total)
         if query.exec_():
             print('Puntuación subida')
         else:
@@ -723,7 +722,6 @@ def draw_text(text, font, color, surface, x, y):
     textrect = textobj.get_rect()
     textrect.topleft = (x, y)
     surface.blit(textobj, textrect)
-
 
 def options():
     running = True
@@ -749,7 +747,7 @@ def options():
         draw_text('Movimiento', font2, WHITE,
                   ventana, 540, 310)
         pygame.draw.circle(ventana, NEGRO, (380, 419), 7)
-        draw_text('Salir / Volver al menú principal', font2, WHITE,
+        draw_text('Salir (Durante el juego) / Volver al menú principal (Ahora)', font2, WHITE,
                   ventana, 400, 412)
         pygame.draw.circle(ventana, NEGRO, (800, 510), 7)
         draw_text('Disparar', font2, WHITE,
@@ -771,7 +769,7 @@ def puntuaciones():
     running = True
     while running:
         ventana.blit(fondo, (0, 0))
-        tiempo = momento_win ** (-1) * 1000000
+        tiempo = momento_win ** (-1) * 10000000
         total = cuentaVidas * tiempo
         draw_text('Tu puntuacion: ' + str(round(total, 2)), font, WHITE, ventana, 410, 150)
         draw_text('Mejores puntuaciones ', font, WHITE, ventana, 400, 200)
@@ -844,6 +842,8 @@ font2 = pygame.font.SysFont(None, 30)
 
 db_connect(filename)
 
+momento_start = 0
+
 while ejecutando:
     clock.tick(FPS)
 
@@ -867,6 +867,7 @@ while ejecutando:
         if button_1.collidepoint((mx, my)):
             if click:
                 fase = 2
+                momento_start = pygame.time.get_ticks()
         if button_2.collidepoint((mx, my)):
             if click:
                 options()
@@ -920,6 +921,12 @@ while ejecutando:
     teclas = pygame.key.get_pressed()
     if teclas[pygame.K_ESCAPE] and jugador is not None:
         fase = 1
+        vidaPeep1 = 5
+        vidaPeep2 = 5
+        vidaPeep3 = 5
+        vidaPeep4 = 5
+        vidaWidow = 0
+        spritesPerder.empty()
         jugador.kill()
         spritesE.empty()
         spritesVidas.empty()
@@ -1088,7 +1095,7 @@ while ejecutando:
                 spriteBossFinal.empty()
                 spriteBarraVida.empty()
                 balas.empty()
-                momento_win = pygame.time.get_ticks()
+                momento_win = pygame.time.get_ticks() - momento_start
                 add_puntuacion()
                 puntuaciones()
 
