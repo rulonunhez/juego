@@ -810,9 +810,6 @@ bossCreado = False
 barraVidaCreada = False
 vidasCreadas = False
 
-# Bucle de juego
-ejecutando = True
-
 eliminados = 0
 cuentaVidas = 2
 i = 1
@@ -835,6 +832,10 @@ vida3_item = None
 vida4_item = None
 
 fase = 1
+
+# Bucle de juego
+ejecutando = True
+
 click = False
 
 font = pygame.font.SysFont(None, 50)
@@ -920,18 +921,42 @@ while ejecutando:
 
     teclas = pygame.key.get_pressed()
     if teclas[pygame.K_ESCAPE] and jugador is not None:
-        fase = 1
-        vidaPeep1 = 5
-        vidaPeep2 = 5
-        vidaPeep3 = 5
-        vidaPeep4 = 5
-        vidaWidow = 0
         spritesPerder.empty()
         jugador.kill()
         spritesE.empty()
         spritesVidas.empty()
+
         jugadorCreado = False
         arañasCreadas = False
+        jugadorCreado = False
+        arañasCreadas = False
+        peepsCreados = False
+        bossCreado = False
+        barraVidaCreada = False
+        vidasCreadas = False
+
+        eliminados = 0
+        cuentaVidas = 2
+        i = 1
+
+        vidaPeep1 = 5
+        vidaPeep2 = 5
+        vidaPeep3 = 5
+        vidaPeep4 = 5
+
+        vidaWidow = 0
+
+        peepsEliminados = 0
+
+        jugador = None
+        peep1 = None
+        bossFinal = None
+
+        colisionVidaJugador = False
+        vida3_item = None
+        vida4_item = None
+
+        fase = 1
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
